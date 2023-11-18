@@ -1,8 +1,5 @@
 from django.db import models
-
-class PatientManager(models.Manager):
-  def create_patient(self, **kwargs):
-    return self.create(**kwargs)
+from django.contrib.auth import get_user_model
     
 
 class Patient(models.Model):
@@ -27,4 +24,22 @@ class Patient(models.Model):
   postal_code = models.IntegerField()
 
 
-  objects = PatientManager()
+class MedicalStaff(models.Model):
+  POSITION_CHOICES = [
+    ("doctor", "Doctor"),
+    ("nurse", "Nurse"),
+    ("director", "Director")
+  ]
+  user = models.ForeignKey(
+    get_user_model(),
+    on_delete=models.DO_NOTHING
+  )
+  phone = models.CharField(max_length=40)
+  position = models.CharField(
+    max_length=20,
+    choices=POSITION_CHOICES
+  )
+  street = models.CharField(max_length=255)
+  city = models.CharField(max_length=255)
+  province = models.CharField(max_length=255)
+  postal_code = models.IntegerField()
