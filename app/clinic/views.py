@@ -2,8 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from clinic.models import MedicalStaff, Patient
-from django.http import HttpResponse
+from clinic.models import Doctor, Patient, Consultation, Medication
+from django.http import HttpResponse, JsonResponse
+import json
+from datetime import datetime
+from django.core import serializers
 
 def index(request):
   return redirect('patients')
@@ -28,10 +31,11 @@ def signout(request):
   logout(request)
   return redirect('/')
 
+# PATIENTS
 @login_required
 def patients(request):
   patients = Patient.objects.all()
-  return render(request, 'pages/patient/list.html', {"patients": patients})
+  return render(request, 'pages/patients/list.html', {"patients": patients})
 
 @login_required
 @require_http_methods(["GET", "POST"])
@@ -47,10 +51,11 @@ def create_patient(request):
       occupation=request.POST.get('occupation'),
       street=request.POST.get('street'),
       city=request.POST.get('city'),
-      postal_code=request.POST.get('postal_code')
+      postal_code=request.POST.get('postal_code'),
+      allergies=request.POST.get('allergies')
     )
     return redirect('patients')
-  return render(request, 'pages/patient/create.html', {"genders": Patient.get_genders()})
+  return render(request, 'pages/patients/create.html', {"genders": Patient.get_genders()})
 
 @login_required
 def delete_patient(request, id):
@@ -60,18 +65,67 @@ def delete_patient(request, id):
 @login_required
 def view_patient(request, id):
   patient = Patient.objects.get(pk=id)
-  return render(request, 'pages/patient/view.html', {"patient": patient})
+  allergies = patient.allergies.split(",")
+  consultations = Consultation.objects.filter(patient=patient)
+  medications = Medication.objects.filter(consultation__patient=patient)
+  return render(request, 'pages/patients/view.html', {
+    "patient": patient, 
+    "types": Consultation.get_patient_types(),
+    "consultations": consultations,
+    "medications": medications,
+    "allergies":allergies
+    })
 
 @login_required
-def medical_staff(request):
-  staff = MedicalStaff.objects.all()
-  return render(request, 'pages/medical_staff/list.html', {"data": staff})
+@require_http_methods(["POST"])
+def create_patient_consultation(request, id):
+  try:
+    success = True
+    patient = Patient.objects.get(pk=id)
+    doctor = Doctor.objects.get(user=request.user)
+    data = json.loads(request.body)
+    consultation = Consultation(
+      doctor=doctor,
+      patient=patient,
+      datetime=datetime.now(),
+      **data
+    )
+    consultation.save()
+  except Exception as e:
+    success = False
+  return JsonResponse({'success':success})
+
+@login_required
+def create_patient_consultation_medication(request, pid, cid):
+  try:
+    success=True
+    consultation = Consultation.objects.get(pk=cid)
+    data = json.loads(request.body)
+    medication = Medication(
+      consultation=consultation,
+      datetime=datetime.now(),
+      **data
+    )
+    medication.save()
+  except Exception as e:
+    success = False
+    return {'e':e}
+  return JsonResponse({'success':success})
+  
+
+
+# DOCTORS
+
+@login_required
+def doctors(request):
+  staff = Doctor.objects.all()
+  return render(request, 'pages/doctors/list.html', {"data": staff})
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def create_medical_staff(request):
+def create_doctor(request):
   if request.method=='POST':
-    MedicalStaff.objects.create(
+    Doctor.objects.create(
       user=get_user_model().objects.get(pk=request.POST.get('user')),
       phone=request.POST.get('phone'),
       position=request.POST.get('position'),
@@ -80,16 +134,16 @@ def create_medical_staff(request):
       city=request.POST.get('city'),
       postal_code=request.POST.get('postal_code')
     )
-    return redirect('medical_staff')
+    return redirect('doctors')
   users = get_user_model().objects.all()
-  return render(request, 'pages/medical_staff/create.html', {"users": users, "positions": MedicalStaff.get_positions()})
+  return render(request, 'pages/doctors/create.html', {"users": users})
 
 @login_required
-def delete_medical_staff(request, id):
-  MedicalStaff.objects.get(pk=id).delete()
-  return redirect('medical_staff')
+def delete_doctor(request, id):
+  Doctor.objects.get(pk=id).delete()
+  return redirect('doctors')
 
 @login_required
-def view_medical_staff(request, id):
-  staff = MedicalStaff.objects.get(pk=id)
-  return render(request, 'pages/medical_staff/view.html', {"staff": staff})
+def view_doctor(request, id):
+  staff = Doctor.objects.get(pk=id)
+  return render(request, 'pages/doctors/view.html', {"staff": staff})

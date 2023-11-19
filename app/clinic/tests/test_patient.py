@@ -13,10 +13,10 @@ class PatientTests(TestCase):
       gender='female',
       street='1 purm street',
       city='cape town',
-      province='western cape',
       postal_code=7800,
       occupation='surgeon',
-      phone='0112345675'
+      phone='0112345675',
+      allergies='coffee,garlic'
     )
     self.patient.save()
 
@@ -29,7 +29,6 @@ class PatientTests(TestCase):
       gender='female',
       street='1 purm street',
       city='cape town',
-      province='western cape',
       postal_code=7800,
       occupation='surgeon',
       phone='0112345675'

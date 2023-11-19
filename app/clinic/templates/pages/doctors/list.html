@@ -1,0 +1,33 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+  <a class="btn btn-outline-primary btn-sm" href="{% url 'create_doctor' %}">add</a>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Full Name</th>
+        <th scope="col">Position</th>
+        <th scope="col">Department</th>
+        <th scope="col">Phone</th>
+        <th scope="col">Address</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for staff in data %}
+      <tr>
+        <td>{{ staff.user.first_name }} {{ staff.user.last_name }}</td>
+        <td>{{ staff.position }}</td>
+        <td>{{ staff.department }}</td>
+        <td>{{ staff.phone }}</td>
+        <td>{{ staff.street }} {{ staff.city }} {{ staff.postal_code }}</td>
+        <td>
+          <a class="btn btn-outline-dark btn-sm" href="{% url 'view_doctor' staff.id %}">view</a>
+          <a class="btn btn-outline-danger btn-sm" href="{% url 'delete_doctor' staff.id %}" onclick="return confirm('Continue delete')">delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
