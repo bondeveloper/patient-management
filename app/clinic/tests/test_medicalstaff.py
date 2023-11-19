@@ -15,8 +15,8 @@ class MedicalStaffTest(TestCase):
       street='3 tres road',
       position='doctor',
       city='cape town',
-      province='western cape',
       postal_code=7800,
+      department='neuro-surgery'
     )
 
     self.staff.save()

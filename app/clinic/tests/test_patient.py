@@ -1,5 +1,6 @@
 from django.test import TestCase
 from clinic.models import Patient
+from django.urls import reverse
 
 
 class PatientTests(TestCase):
