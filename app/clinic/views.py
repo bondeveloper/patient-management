@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from clinic.models import Doctor, Patient, Consultation, Medication
+from clinic.models import Doctor, Patient, Appointment, Medication
 from django.http import HttpResponse, JsonResponse
 import json
 from datetime import datetime
@@ -66,11 +66,11 @@ def delete_patient(request, id):
 def view_patient(request, id):
   patient = Patient.objects.get(pk=id)
   allergies = patient.allergies.split(",")
-  consultations = Consultation.objects.filter(patient=patient)
+  consultations = Appointment.objects.filter(patient=patient)
   medications = Medication.objects.filter(consultation__patient=patient)
   return render(request, 'pages/patients/view.html', {
     "patient": patient, 
-    "types": Consultation.get_patient_types(),
+    "types": Appointment.get_patient_types(),
     "consultations": consultations,
     "medications": medications,
     "allergies":allergies
@@ -84,13 +84,13 @@ def create_patient_consultation(request, id):
     patient = Patient.objects.get(pk=id)
     doctor = Doctor.objects.get(user=request.user)
     data = json.loads(request.body)
-    consultation = Consultation(
+    Appointment = Appointment(
       doctor=doctor,
       patient=patient,
       datetime=datetime.now(),
       **data
     )
-    consultation.save()
+    Appointment.save()
   except Exception as e:
     success = False
   return JsonResponse({'success':success})
@@ -99,10 +99,10 @@ def create_patient_consultation(request, id):
 def create_patient_consultation_medication(request, pid, cid):
   try:
     success=True
-    consultation = Consultation.objects.get(pk=cid)
+    Appointment = Appointment.objects.get(pk=cid)
     data = json.loads(request.body)
     medication = Medication(
-      consultation=consultation,
+      Appointment=Appointment,
       datetime=datetime.now(),
       **data
     )

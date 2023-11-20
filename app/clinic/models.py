@@ -46,7 +46,7 @@ class Doctor(models.Model):
   def __str__(self) -> str:
      return f"{self.user.first_name} {self.user.last_name}"
 
-class Consultation(models.Model):
+class Appointment(models.Model):
   PATIENT_TYPE_CHOICES = [
       ('in', 'In Patient'),
       ('out', 'Out Patient')
@@ -76,8 +76,8 @@ class Consultation(models.Model):
     return self.PATIENT_TYPE_CHOICES
   
 class Medication(models.Model):
-  consultation = models.ForeignKey(
-    Consultation,
+  appointment = models.ForeignKey(
+    Appointment,
     on_delete=models.CASCADE
   )
   name = models.CharField(max_length=100)

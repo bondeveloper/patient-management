@@ -1,11 +1,11 @@
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
-from clinic.models import Consultation, Patient, Doctor
+from clinic.models import Appointment, Patient, Doctor
 from django.urls import reverse
 import json
 
 
-class ConsultationTests(TestCase):
+class AppointmentTests(TestCase):
   def setUp(self) -> None:
     self.client = Client()
     self.patient = Patient(
@@ -37,7 +37,7 @@ class ConsultationTests(TestCase):
     self.doctor.save()
     self.client.force_login(self.user)
 
-    self.consultation = Consultation(
+    self.appointment = Appointment(
       patient=self.patient,
       doctor=self.doctor,
       symptoms='headache, fever, vomiting',
@@ -46,20 +46,20 @@ class ConsultationTests(TestCase):
       patient_type='out',
       datetime='2023-11-19'
     )
-    self.consultation.save()
+    self.appointment.save()
 
   def test_consultation_created(self):
-    self.assertTrue(len(Consultation.objects.all()) > 0)
+    self.assertTrue(len(Appointment.objects.all()) > 0)
   
   def test_consultation_updated(self):
-    self.assertEquals(self.consultation.patient_type, 'out')
-    self.consultation.patient_type = 'in'
-    self.consultation.save(update_fields=['patient_type'])
-    self.assertEquals(self.consultation.patient_type, 'in')
+    self.assertEquals(self.appointment.patient_type, 'out')
+    self.appointment.patient_type = 'in'
+    self.appointment.save(update_fields=['patient_type'])
+    self.assertEquals(self.appointment.patient_type, 'in')
 
   def test_consultation_deleted(self):
-    self.consultation.delete()
-    self.assertTrue(len(Consultation.objects.all()) == 0)
+    self.appointment.delete()
+    self.assertTrue(len(Appointment.objects.all()) == 0)
 
   def test_consultation_saved(self):
     url = reverse('create_patient_consultation', args=[self.patient.id])
@@ -73,7 +73,7 @@ class ConsultationTests(TestCase):
     self.assertTrue(res.json().get('success'))
 
   def test_consultation_medication_added(self):
-    url = reverse('create_patient_consultation_medication', args=[self.patient.id, self.consultation.id])
+    url = reverse('create_patient_consultation_medication', args=[self.patient.id, self.appointment.id])
     payload = {
       "name":'brufen',
       "instructions":'2 pills 2 times a day after meals',

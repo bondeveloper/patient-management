@@ -71,18 +71,18 @@
           </tr>
         </thead>
         <tbody>
-          {% for consultation in consultations %}
+          {% for appointment in consultations %}
           <tr>
-            <td>{{ consultation.datetime }}</td>
-            <td>{{ consultation.doctor }}</td>
-            <td>{{ consultation.illness }}</td>
-            <td>{{ consultation.symptoms }}</td>
-            <td>{{ consultation.patient_type }}</td>
+            <td>{{ appointment.datetime }}</td>
+            <td>{{ appointment.doctor }}</td>
+            <td>{{ appointment.illness }}</td>
+            <td>{{ appointment.symptoms }}</td>
+            <td>{{ appointment.patient_type }}</td>
             <td>
               <!-- <a class="btn btn-outline-dark btn-sm" href="{% url 'patients' %}">add</a> -->
               <button type="button" class="btn btn-outline-dark btn-sm" 
                 data-bs-toggle="modal" data-bs-target="#medicationAddModal" 
-                data-bs-medicationurl="{% url 'create_patient_consultation_medication' patient.id consultation.id %}">
+                data-bs-medicationurl="{% url 'create_patient_consultation_medication' patient.id appointment.id %}">
                 add
               </button>
               <a class="btn btn-outline-dark btn-sm" href="">view</a>
@@ -103,7 +103,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="create-patient-consultation">
+        <form id="create-patient-appointment">
           <div class="mb-3">
             <label for="symptoms" class="col-form-label">Symptoms</label>
             <input type="text" class="form-control" id="symptoms" name="symptoms">
@@ -143,7 +143,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="create-patient-consultation-medication" data-medication-url="">
+        <form id="create-patient-appointment-medication" data-medication-url="">
           <div class="mb-3">
             <label for="name" class="col-form-label">Name</label>
             <input type="text" class="form-control" id="name" name="name">
@@ -173,10 +173,10 @@
 <script>
   document.getElementById('medicationAddModal').addEventListener('show.bs.modal', function (event) {
     const url = event.relatedTarget.getAttribute('data-bs-medicationurl');
-    document.getElementById('create-patient-consultation-medication').setAttribute('data-medication-url', url)
+    document.getElementById('create-patient-appointment-medication').setAttribute('data-medication-url', url)
   });
   document.getElementById('save-medication').onclick = () => {
-    const form = document.getElementById('create-patient-consultation-medication');
+    const form = document.getElementById('create-patient-appointment-medication');
     const url = form.getAttribute('data-medication-url')
     const data = Object.fromEntries(new FormData(form))
 
@@ -185,11 +185,11 @@
     });
   };
   document.getElementById('save-consulation').onclick = () => {
-    const data =  Object.fromEntries(new FormData(document.getElementById('create-patient-consultation')))
+    const data =  Object.fromEntries(new FormData(document.getElementById('create-patient-appointment')))
     postData("{% url 'create_patient_consultation' patient.id %}", data).then((data) => {
       location.reload();
     });
-    // const data = Object.fromEntries(new FormData(document.getElementById('create-patient-consultation')));
+    // const data = Object.fromEntries(new FormData(document.getElementById('create-patient-appointment')));
     // const response = fetch("{% url 'create_patient_consultation' patient.id %}", {
     //   method: 'POST',
     //   headers: {
