@@ -21,16 +21,21 @@ urlpatterns = [
     path('', index, name='index'),
     path('signin/', signin, name='signin'),
     path('signout/', signout, name='signout'),
+    path('dashboard/', dashboard, name='dashboard'),
 
     path('patients/', patients, name='patients'),
+    path('api/patients/', get_patients, name='get_patients'),
+
     path('patients/create', create_patient, name='create_patient'),
     path('patients/<int:id>/delete', delete_patient, name='delete_patient'),
     path('patients/<int:id>/view', view_patient, name='view_patient'),
-    path('patients/<int:id>/consultations/create', create_patient_consultation, name='create_patient_consultation'),
-    path('patients/<int:pid>/consultations/<int:cid>/medication/create', create_patient_consultation_medication, name='create_patient_consultation_medication'),
+    path('patients/<int:id>/appointment/<int:aid>', view_patient_appointment, name='view_patient_appointment'),
+    path('patients/<int:id>/appointments/create', create_patient_consultation, name='create_patient_consultation'),
+    path('patients/<int:pid>/appointments/<int:cid>/medication/create', create_patient_consultation_medication, name='create_patient_consultation_medication'),
 
     path('doctors/', doctors, name='doctors'),
     path('doctors/create', create_doctor, name='create_doctor'),
     path('doctors/<int:id>/delete', delete_doctor, name='delete_doctor'),
-    path('doctors/<int:id>/view', view_doctor, name='view_doctor')
+    path('doctors/<int:id>/view', view_doctor, name='view_doctor'),
+    path('doctors/appointments/create', doctor_appointments_create, name='doctor_appointments_create')
 ]

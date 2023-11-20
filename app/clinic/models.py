@@ -66,7 +66,8 @@ class Appointment(models.Model):
     choices=PATIENT_TYPE_CHOICES,
     max_length=10
   )
-  datetime = models.DateTimeField()
+  date = models.DateField()
+  time = models.TimeField()
 
   def __str__(self) -> str:
      return f"{self.patient} {self.doctor}"

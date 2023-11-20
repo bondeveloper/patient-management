@@ -12,14 +12,70 @@
   <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 <body>
     {% include 'components/navbar.html' %}
-  <div class="container2">
+
+    
+    <div class="modal fade" id="consultationModal" tabindex="-1" aria-labelledby="consultationModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="consultationModalLabel">{{patient}}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="create-appointment2">
+              <div class="mb-3">
+                <label for="symptoms" class="col-form-label">Symptoms</label>
+                <input type="text" class="form-control" id="symptoms" name="symptoms">
+              </div>
+              <div class="mb-3">
+                <label for="illness" class="col-form-label">Illness</label>
+                <input type="text" class="form-control" id="illness" name="illness">
+              </div>
+              <div class="mb-3">
+                <label for="notes" class="col-form-label">Notes:</label>
+                <textarea class="form-control" id="notes" name="notes"></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="patient_type" class="col-form-label">Type</label>
+                <select class="form-select" id="patient_type" name="patient_type">
+                  <option value="" disabled selected>-</option>
+                  {% for key, value in types %}
+                  <option value="{{ key }}">{{ value}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="save-consulation">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
     {% block content %}{% endblock %}
-  </div>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </body>
 <script>
+  // In your Javascript (external .js resource or <script> tag)
+
 new DataTable('.datatable');
+
+function postData(url, data) {
+  const response = fetch(url, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}"
+      },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
 </script>
 </html>

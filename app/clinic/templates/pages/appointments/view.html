@@ -1,39 +1,45 @@
 {% extends "components/base.html" %}
 {% block content %}
-<div class="container-fluid">
+<div class="container">
   <div class="row gx-5" style="margin-bottom: 50px;">
     <div class="col-5">
       <div class="p-1">
         <h4 class="text-capitalize">{{patient}}</h4>
-        <table class="table">
-          <tbody>
-            <tr>
-              <th scope="row">birth date</th>
-              <td>{{ patient.date_of_birth}}</td>
-            </tr>
-            <tr>
-              <th scope="row">email</th>
-              <td>{{ patient.email}}</td>
-            </tr>
-            <tr>
-              <th scope="row">phone</th>
-              <td>{{ patient.phone}}</td>
-            </tr>
-            <tr>
-              <th scope="row">gender</th>
-              <td>{{ patient.gender}}</td>
-            </tr>
-            <tr>
-              <th scope="row">occupation</th>
-              <td>{{ patient.occupation}}</td>
-            </tr>
-            <tr>
-              <th scope="row">address</th>
-              <td>{{ patient.street}},  {{ patient.city}},  {{ patient.postal_code}}</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
+      <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="patient_type" class="col-form-label">Type</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="patient_type" id="patient_type_out" {% if appointment.patient_type == 'out' %} checked {% endif %}>
+              <label class="form-check-label" for="patient_type_out">
+                out patient
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="patient_type" id="patient_type_in" {% if appointment.patient_type == 'in' %} checked {% endif %}>
+              <label class="form-check-label" for="patient_type_in">
+                in patient
+              </label>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="symptoms" class="col-form-label">Symptoms</label>
+            <input type="text" class="form-control" id="symptoms" name="symptoms" value="{{appointment.symptoms}}">
+          </div>
+          <div class="mb-3">
+            <label for="illness" class="col-form-label">Illness</label>
+            <input type="text" class="form-control" id="illness" name="illness" value="{{appointment.illness}}">
+          </div>
+          <div class="mb-3">
+            <label for="notes" class="col-form-label">Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="5" value="123">{{appointment.notes}}"</textarea>
+          </div>
+
+        <div class="mb-2">
+          <button type="submit" class="btn btn-dark">Save</button>
+        </div>
+      </form>
     </div>
     <div class="col-2">
       <div class="card">
@@ -56,44 +62,6 @@
           </ul>
         </div>
       </div>
-    </div>
-  </div>
-  <div class="row gx-5">
-    <div class="col">
-      <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#consultationModal" style="margin-bottom: 50px;">
-        new appointment
-      </button>
-      <table class="datatable table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Doctor</th>
-            <th scope="col">Illness</th>
-            <th scope="col">Symptoms</th>
-            <th scope="col">Patient Type</th>
-            <th scope="col">Medication</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for appointment in appointments %}
-          <tr>
-            <td>{{ appointment.date }} {{ appointment.time }}</td>
-            <td>{{ appointment.doctor }}</td>
-            <td>{{ appointment.illness }}</td>
-            <td>{{ appointment.symptoms }}</td>
-            <td>{{ appointment.patient_type }}</td>
-            <td>
-              <button type="button" class="btn btn-outline-dark btn-sm" 
-                data-bs-toggle="modal" data-bs-target="#medicationAddModal" 
-                data-bs-medicationurl="{% url 'create_patient_consultation_medication' patient.id appointment.id %}">
-                add
-              </button>
-              <a class="btn btn-outline-dark btn-sm" href="">view</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
     </div>
   </div>
 </div>
@@ -166,5 +134,17 @@
     //   location.reload();
     // });
   };
+
+  function postData(url, data) {
+    const response = fetch(url, {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  }
 </script>
 {% endblock %}

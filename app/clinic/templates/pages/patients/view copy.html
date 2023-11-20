@@ -83,6 +83,7 @@
             <td>{{ appointment.symptoms }}</td>
             <td>{{ appointment.patient_type }}</td>
             <td>
+              <!-- <a class="btn btn-outline-dark btn-sm" href="{% url 'patients' %}">add</a> -->
               <button type="button" class="btn btn-outline-dark btn-sm" 
                 data-bs-toggle="modal" data-bs-target="#medicationAddModal" 
                 data-bs-medicationurl="{% url 'create_patient_consultation_medication' patient.id appointment.id %}">
@@ -166,5 +167,17 @@
     //   location.reload();
     // });
   };
+
+  function postData(url, data) {
+    const response = fetch(url, {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  }
 </script>
 {% endblock %}

@@ -1,0 +1,121 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="row gx-5" style="margin-bottom: 50px;">
+    <div class="col-4">
+      <form class="row g-3">
+        <div class="col-auto">
+          <input type="date" class="form-control" name="date" placeholder="Date">
+        </div>
+        <div class="col-auto">
+          <input type="search" class="form-control" name="key" placeholder="Search">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-outline-dark mb-3">search</button>
+        </div>
+      </form>
+    </div>
+    <div class="col-4">
+      {{ appointments|length }} Appointment{% if appointments|length != 1 %}s {% endif %} {% if  filter %} for {{filter|date:"Y-m-d"}} {% endif %}
+    </div>
+    <div class="col-4">
+      <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#createAppointmentModal" style="margin-bottom: 50px;">
+        add appointment
+      </button>
+      <!-- <a href="{% url 'doctor_appointments_create' %}">add appointment</a> -->
+    </div>
+  </div>
+  <div class="row gx-5">
+    <div class="col">
+      <table class="datatable table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Time</th>
+            <th scope="col">Name</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Email</th>
+            <th scope="col">Patient Type</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for appointment in appointments %}
+          <tr>
+            <td>{{ appointment.time }}</td>
+            <td>{{ appointment.patient }}</td>
+            <td>{{ appointment.patient.phone }}</td>
+            <td>{{ appointment.patient.email }}</td>
+            <td>{{ appointment.patient_type }}</td>
+            <td>
+              <a class="btn btn-dark btn-sm" href="{% url 'view_patient_appointment' appointment.patient.id appointment.id %}">view</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" role="dialog" id="createAppointmentModal"  aria-labelledby="createAppointmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createAppointmentModalLabel">{{patient}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="create-appointment">
+          <div class="mb-3">
+            <label for="patient_type" class="col-form-label">Patient</label>
+            <select class="form-select" id="id_patient" name="id_patient">
+              <option value="" disabled selected>-</option>
+              {% for key, value in types %}
+              <option value="{{ key }}">{{ value}}</option>
+              {% endfor %}
+            </select>
+            <div class="mb-3">
+              <label for="date" class="col-form-label">Date</label>
+              <input type="date" class="form-control" id="date" name="date">
+            </div>
+            <div class="mb-3">
+              <label for="time" class="col-form-label">Time</label>
+              <input type="time" class="form-control" id="time" name="time">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="save-appointment">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.getElementById('createAppointmentModal').addEventListener('shown.bs.modal', function (event) {
+      $('#id_patient').select2({
+        dropdownParent: $('#createAppointmentModal'),
+        ajax: {
+          url: "{% url 'get_patients' %}",
+          dataType: 'json',
+          processResults: function(data) {
+            return {
+              results: $.map(data, function(item) {
+                return {id: item.id, text: item.first_name +" "+item.last_name}
+              })
+            }
+          }
+        }
+      });
+    });
+
+    document.getElementById('save-appointment').onclick = () => {
+      const data =  Object.fromEntries(new FormData(document.getElementById('create-appointment')))
+      postData("{% url 'doctor_appointments_create' %}", data).then((data) => {
+        location.reload();
+      });
+    };
+   
+</script>
+{% endblock %}

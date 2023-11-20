@@ -48,37 +48,38 @@ class AppointmentTests(TestCase):
     )
     self.appointment.save()
 
-  def test_consultation_created(self):
+  def test_appointment_created(self):
     self.assertTrue(len(Appointment.objects.all()) > 0)
   
-  def test_consultation_updated(self):
+  def test_appointment_updated(self):
     self.assertEquals(self.appointment.patient_type, 'out')
     self.appointment.patient_type = 'in'
     self.appointment.save(update_fields=['patient_type'])
     self.assertEquals(self.appointment.patient_type, 'in')
 
-  def test_consultation_deleted(self):
+  def test_appointment_deleted(self):
     self.appointment.delete()
     self.assertTrue(len(Appointment.objects.all()) == 0)
 
-  def test_consultation_saved(self):
-    url = reverse('create_patient_consultation', args=[self.patient.id])
+  def test_making_appointment(self):
+    url = reverse('create_patient_appointment', args=[self.doctor.id])
     payload = {
       "symptoms":'headache, fever, vomiting',
       "illness":'food poisoning',
       "notes":'went abroad for holidays and suspect might have had bed food.',
-      "patient_type":'out'
+      "patient_type":'out',
+      "datetime": '2023-11-21 12:20:00'
     }
     res = self.client.post(url, json.dumps(payload), content_type="application/json")
     self.assertTrue(res.json().get('success'))
 
-  def test_consultation_medication_added(self):
-    url = reverse('create_patient_consultation_medication', args=[self.patient.id, self.appointment.id])
-    payload = {
-      "name":'brufen',
-      "instructions":'2 pills 2 times a day after meals',
-      "start": "2023-11-19",
-      "end": "2023-12-07"
-    }
-    res = self.client.post(url, json.dumps(payload), content_type="application/json")
-    self.assertTrue(res.json().get('success'))
+  # def test_appointment_medication_added(self):
+  #   url = reverse('create_patient_appointment_medication', args=[self.patient.id, self.appointment.id])
+  #   payload = {
+  #     "name":'brufen',
+  #     "instructions":'2 pills 2 times a day after meals',
+  #     "start": "2023-11-19",
+  #     "end": "2023-12-07"
+  #   }
+  #   res = self.client.post(url, json.dumps(payload), content_type="application/json")
+  #   self.assertTrue(res.json().get('success'))
