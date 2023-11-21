@@ -12,6 +12,7 @@
         </div>
         <div class="col-auto">
           <button class="btn btn-outline-dark mb-3">search</button>
+          <a class="btn btn-outline-dark mb-3" href="{% url 'dashboard' %}">clear</a>
         </div>
       </form>
     </div>
@@ -113,6 +114,7 @@
     document.getElementById('save-appointment').onclick = () => {
       const data =  Object.fromEntries(new FormData(document.getElementById('create-appointment')))
       postData("{% url 'doctor_appointments_create' %}", data).then((data) => {
+        console.log(data);
         location.reload();
       });
     };

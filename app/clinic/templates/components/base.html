@@ -74,8 +74,10 @@ function postData(url, data) {
         "X-CSRFToken": "{{ csrf_token }}"
       },
     body: JSON.stringify(data),
+  }).then((res) => {
+    return res.json();
   });
-  return response.json();
+  return response;
 }
 </script>
 </html>

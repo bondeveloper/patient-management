@@ -8,6 +8,9 @@
         <ul class="navbar-nav">
           {% if request.user.is_authenticated %}
           <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard' %}">appointments</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="{% url 'patients' %}">patients</a>
           </li>
           <li class="nav-item">
