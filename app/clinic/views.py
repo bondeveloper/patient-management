@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.http import require_http_methods
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -30,8 +30,20 @@ class UpdateDoctorView(UpdateView):
   model = Doctor
   exclude = ('user',)
   form_class = UpdateDoctorModelForm
-  template_name = 'pages/doctors/create.html'
+  template_name = 'pages/doctors/list.html'
   success_url = '/doctors/'
+
+class ListDoctorView(ListView):
+  model = Doctor
+  template_name = 'pages/doctors/list.html'
+
+  def get_queryset(self):
+    q = self.request.GET.get('q', False)
+    object_list = self.model.objects.all()
+    if q:
+        object_list = object_list.filter(department__icontains=q)
+    return object_list
+
 
 def get_users(request):
   if is_ajax(request=request):

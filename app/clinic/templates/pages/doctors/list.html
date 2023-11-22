@@ -1,6 +1,10 @@
 {% extends "components/base.html" %}
 {% block content %}
 <div class="container">
+  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+		<h1 class="display-4">All Doctors</h1>
+		{% if not object %}<p class="lead">A doctor can only be created from existing staff users.</p>{% endif %}
+	</div>
   <div class="row gx-5" style="margin-bottom: 50px;">
     <div class="col-4">
       <form class="row g-3">
@@ -29,7 +33,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for doctor in doctors %}
+        {% for doctor in object_list %}
         <tr>
           <td>{{ doctor.user.first_name }} {{ doctor.user.last_name }}</td>
           <td>{{ doctor.department }}</td>

@@ -29,7 +29,6 @@ urlpatterns = [
     path('appointment/<int:id>/view', view_appointment, name='view_appointment'),
 
     path('patients/', list_patients, name='patients'),
-    path('doctors/', list_doctors, name='doctors'),
 
     path('api/patients/', get_patients, name='get_patients'),
 
@@ -38,6 +37,7 @@ urlpatterns = [
     path('patients/create', CreatePatientView.as_view(), name='create_patient'),
     path('patients/<int:pk>/edit', UpdatePatientView.as_view(), name='edit_patient'),
 
+    path('doctors/', ListDoctorView.as_view(), name='doctors'),
     path('doctors/create', CreateDoctorView.as_view(), name='create_doctor'),
     path('doctors/<slug:pk>/edit', UpdateDoctorView.as_view(), name='edit_doctor'),
     path('doctors/<int:id>/delete', delete_doctor, name='delete_doctor'),
