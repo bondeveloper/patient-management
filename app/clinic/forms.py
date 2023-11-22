@@ -39,3 +39,27 @@ class UpdateDoctorModelForm(BaseDoctorModelForm):
 
   class Meta(BaseDoctorModelForm.Meta):
     fields = ('phone', 'department', 'street', 'city', 'postal_code')
+
+
+class CreatePatientModelForm(forms.ModelForm):
+
+  class Meta:
+    model = Patient
+    fields = '__all__'
+    widgets = {
+      'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+      'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+      'date_of_birth': forms.DateInput(format=('%Y-%m-%d'), 
+              attrs={'class': 'form-control', 
+               'placeholder': 'Select a date',
+               'type': 'date'
+              }),
+      'email': forms.EmailInput(attrs={'class': 'form-control'}),
+      'phone': forms.TextInput(attrs={'class': 'form-control'}),
+      'gender': forms.Select(attrs={'class': 'form-control'}),
+      'occupation': forms.TextInput(attrs={'class': 'form-control'}),
+      'allergies': forms.TextInput(attrs={'class': 'form-control'}),
+      'street': forms.TextInput(attrs={'class': 'form-control'}),
+      'city': forms.TextInput(attrs={'class': 'form-control'}),
+      'postal_code': forms.NumberInput(attrs={'class': 'form-control'})
+    }

@@ -15,7 +15,7 @@ import json
 from django.template.response import TemplateResponse
 
 from clinic.models import Doctor, Patient, Appointment, Medication
-from .forms import AppointmentCreationForm, CreateDoctorModelForm, UpdateDoctorModelForm
+from .forms import AppointmentCreationForm, CreateDoctorModelForm, UpdateDoctorModelForm, CreatePatientModelForm
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +43,19 @@ def get_users(request):
     )
     users_response = list(patients.values())
     return JsonResponse(users_response, safe=False)
+
+class CreatePatientView(CreateView):
+    model = Patient
+    form_class = CreatePatientModelForm
+    template_name = 'pages/patients/create.html'
+    success_url = '/patients/'
+
+
+class UpdatePatientView(UpdateView):
+    model = Patient
+    form_class = CreatePatientModelForm
+    template_name = 'pages/patients/create.html'
+    success_url = '/patients/'
 
 
 @login_required

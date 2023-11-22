@@ -33,9 +33,11 @@ urlpatterns = [
 
     path('api/patients/', get_patients, name='get_patients'),
 
-    path('patients/create', create_patient, name='create_patient'),
 
 # CHECKED START
+    path('patients/create', CreatePatientView.as_view(), name='create_patient'),
+    path('patients/<int:pk>/edit', UpdatePatientView.as_view(), name='edit_patient'),
+
     path('doctors/create', CreateDoctorView.as_view(), name='create_doctor'),
     path('doctors/<slug:pk>/edit', UpdateDoctorView.as_view(), name='edit_doctor'),
     path('doctors/<int:id>/delete', delete_doctor, name='delete_doctor'),
@@ -43,7 +45,6 @@ urlpatterns = [
 # CHECKED END
 
 
-    path('patients/<int:id>/edit', edit_patient, name='edit_patient'),
     
     path('patients/<int:id>/view', view_patient, name='view_patient'),
 
