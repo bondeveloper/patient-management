@@ -1,63 +1,22 @@
 {% extends "components/base.html" %}
 {% block content %}
 <div class="container">
-  <div class="col">
-    <h2 class="text-center">Create Doctor</h2>
-  </div>
-  <div class="row">
-    <form method="post">
-      {% csrf_token %}
-      <div class="row">
-		{{ form.as_p }}
-		<div class="mb-2">
-            <button type="submit" class="btn btn-dark">Submit</button>
-		</div>
-        <!-- <div class="col">
-          <div class="mb-2">
-            <label for="email" class="form-label">Email</label>
-            <input type="text" class="form-control" id="email" name="email">
-          </div>
-          <div class="mb-2">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password">
-          </div>
-          <div class="mb-2">
-            <label for="first_name" class="form-label">First Name</label>
-            <input type="text" class="form-control" id="first_name" name="first_name">
-          </div>
-          <div class="mb-2">
-            <label for="last_name" class="form-label">Last Name</label>
-            <input type="text" class="form-control" id="last_name" name="last_name">
-          </div>
-        </div>
-        <div class="col">
-          <div class="mb-2">
-            <label for="phone" class="form-label">Phone</label>
-            <input type="text" class="form-control" id="phone" name="phone">
-          </div>
-          <div class="mb-2">
-            <label for="department" class="form-label">Department</label>
-            <input type="text" class="form-control" id="department" name="department">
-          </div>
-          <div class="mb-2">
-            <label for="street" class="form-label">Street</label>
-            <input type="text" class="form-control" id="street" name="street">
-          </div>
-          <div class="mb-2">
-            <label for="city" class="form-label">City</label>
-            <input type="text" class="form-control" id="city" name="city">
-          </div>
-          <div class="mb-2">
-            <label for="postal_code" class="form-label">Postal Code</label>
-            <input type="text" class="form-control" id="postal_code" name="postal_code">
-          </div>
-          <div class="mb-2">
-            <button type="submit" class="btn btn-dark">Submit</button>
-          </div>
-        </div> -->
-      </div>
-    </form>
-  </div>
+<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+	<h1 class="display-4">{% if object %}Update{% else %}Create{% endif %} Doctor</h1>
+	{% if not object %}<p class="lead">A doctor can only be created from existing staff users.</p>{% endif %}
+</div>
+<div class="row justify-content-md-center">
+    <div class="col-4">
+		<form method="post">
+			{% csrf_token %}
+			<div class="row">
+			  {{ form.as_p }}
+			  <div class="mb-2">
+				  <button type="submit" class="btn btn-dark">Submit</button>
+			  </div>
+			</div>
+		</form>
+	</div>
 </div>
 
 <script>
