@@ -5,16 +5,16 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="clinicnavbar">
-        <ul class="navbar-nav">
+        <ul class="navbar-nav ms-auto">
           {% if request.user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'dashboard' %}">appointments</a>
+            <a class="nav-link {%if 'appointments' in request.path %} active {% endif %}" href="{% url 'appointments_dashboard' %}">appointments</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'patients' %}">patients</a>
+            <a class="nav-link {%if 'patients' in request.path %} active {% endif %}" href="{% url 'patients' %}">patients</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'doctors' %}">doctors</a>
+            <a class="nav-link {%if 'doctors' in request.path %} active {% endif %}" href="{% url 'doctors' %}">doctors</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'signout' %}">logout</a>

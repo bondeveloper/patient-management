@@ -10,7 +10,7 @@ class Patient(models.Model):
   ]
   first_name = models.CharField(max_length=255)
   last_name = models.CharField(max_length=255)
-  date_of_birth = models.CharField(max_length=255)
+  date_of_birth = models.DateField()
   email = models.EmailField()
   phone = models.CharField(max_length=40)
   gender = models.CharField(
@@ -47,10 +47,6 @@ class Doctor(models.Model):
      return f"{self.user.first_name} {self.user.last_name}"
 
 class Appointment(models.Model):
-  PATIENT_TYPE_CHOICES = [
-      ('in', 'In Patient'),
-      ('out', 'Out Patient')
-    ]
   patient = models.ForeignKey(
     Patient,
     on_delete=models.DO_NOTHING
@@ -62,19 +58,12 @@ class Appointment(models.Model):
   symptoms = models.CharField(max_length=40)
   illness = models.CharField(max_length=255)
   notes = models.CharField(max_length=255)
-  patient_type = models.CharField(
-    choices=PATIENT_TYPE_CHOICES,
-    max_length=10
-  )
+  patient_type = models.CharField(max_length=100)
   date = models.DateField()
   time = models.TimeField()
 
   def __str__(self) -> str:
      return f"{self.patient} {self.doctor}"
-
-  @classmethod
-  def get_patient_types(self):
-    return self.PATIENT_TYPE_CHOICES
   
 class Medication(models.Model):
   appointment = models.ForeignKey(
@@ -82,7 +71,7 @@ class Medication(models.Model):
     on_delete=models.CASCADE
   )
   name = models.CharField(max_length=100)
-  instructions = models.CharField(max_length=255)
+  dosage = models.CharField(max_length=100)
+  frequency = models.CharField(max_length=100)
   start = models.DateField()
   end = models.DateField()
-  datetime = models.DateTimeField()

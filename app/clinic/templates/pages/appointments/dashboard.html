@@ -5,50 +5,52 @@
     <div class="col-4">
       <form class="row g-3">
         <div class="col-auto">
-          <input type="date" class="form-control" name="date" placeholder="Date">
-        </div>
-        <div class="col-auto">
-          <input type="search" class="form-control" name="key" placeholder="Search">
+          <input type="date" class="form-control" name="date" placeholder="Date" value="{{filter_date}}">
         </div>
         <div class="col-auto">
           <button class="btn btn-outline-dark mb-3">search</button>
-          <a class="btn btn-outline-dark mb-3" href="{% url 'dashboard' %}">clear</a>
         </div>
       </form>
     </div>
     <div class="col-4">
-      {{ appointments|length }} Appointment{% if appointments|length != 1 %}s {% endif %} {% if  filter %} for {{filter|date:"Y-m-d"}} {% endif %}
-    </div>
-    <div class="col-4">
-      <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#createAppointmentModal" style="margin-bottom: 50px;">
-        add appointment
+      <button type="button" class="btn btn-dark position-relative">
+        Appointments
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          {{ appointments|length }}
+          <span class="visually-hidden">Appoitments</span>
+        </span>
       </button>
-      <!-- <a href="{% url 'doctor_appointments_create' %}">add appointment</a> -->
     </div>
+  </div>
+  <div class="col">
+    <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#createAppointmentModal" style="margin-bottom: 50px;">
+      add
+    </button>
   </div>
   <div class="row gx-5">
     <div class="col">
       <table class="datatable table table-striped">
         <thead>
           <tr>
+            <th scope="col">Date</th>
             <th scope="col">Time</th>
             <th scope="col">Name</th>
             <th scope="col">Phone</th>
             <th scope="col">Email</th>
-            <th scope="col">Patient Type</th>
             <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
           {% for appointment in appointments %}
           <tr>
-            <td>{{ appointment.time }}</td>
+            <td>{{ appointment.date|date:"Y-m-d" }}</td>
+            <td>{{ appointment.time|time:"H:i" }}</td>
             <td>{{ appointment.patient }}</td>
             <td>{{ appointment.patient.phone }}</td>
             <td>{{ appointment.patient.email }}</td>
-            <td>{{ appointment.patient_type }}</td>
             <td>
-              <a class="btn btn-dark btn-sm" href="{% url 'view_patient_appointment' appointment.patient.id appointment.id %}">view</a>
+              <a class="btn btn-outline-dark btn-sm" href="{% url 'view_appointment' appointment.id %}">view</a>
+              <a class="btn btn-outline-danger btn-sm" id="delete-appointment" data-id="{{appointment.id}}">delete</a>
             </td>
           </tr>
           {% endfor %}
@@ -114,7 +116,14 @@
     document.getElementById('save-appointment').onclick = () => {
       const data =  Object.fromEntries(new FormData(document.getElementById('create-appointment')))
       postData("{% url 'doctor_appointments_create' %}", data).then((data) => {
-        console.log(data);
+        location.reload();
+      });
+    };
+
+    document.getElementById('delete-appointment').onclick = (e) => {
+      const id = e.target.dataset.id;
+      const url = "{% url 'delete_appointment' 12345 %}".replace(/12345/, id.toString());      
+      getData(url).then((response) => {
         location.reload();
       });
     };

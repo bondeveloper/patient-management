@@ -1,0 +1,53 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <h2 class="text-center">Edit Doctor</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col">
+          <div class="mb-2">
+            <label for="first_name" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" value="{{doctor.user.first_name}}">
+          </div>
+          <div class="mb-2">
+            <label for="last_name" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" value="{{doctor.user.last_name}}">
+          </div>
+          <div class="mb-2">
+            <label for="email" class="form-label">Email</label>
+            <input type="text" class="form-control" id="email" name="email" value="{{doctor.user.email}}">
+          </div>
+          <div class="mb-2">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="text" class="form-control" id="phone" name="phone" value="{{doctor.phone}}">
+          </div>
+        </div>
+        <div class="col">
+          <div class="mb-2">
+            <label for="department" class="form-label">Department</label>
+            <input type="text" class="form-control" id="department" name="department" value="{{doctor.department}}">
+          </div>
+          <div class="mb-2">
+            <label for="street" class="form-label">Street</label>
+            <input type="text" class="form-control" id="street" name="street" value="{{doctor.street}}">
+          </div>
+          <div class="mb-2">
+            <label for="city" class="form-label">City</label>
+            <input type="text" class="form-control" id="city" name="city" value="{{doctor.city}}">
+          </div>
+          <div class="mb-2">
+            <label for="postal_code" class="form-label">Postal Code</label>
+            <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{doctor.postal_code}}">
+          </div>
+        </div>
+      </div>    
+        
+      <div class="mb-2">
+        <button type="submit" class="btn btn-dark">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,10 +1,13 @@
 {% extends "components/base.html" %}
 {% block content %}
-<div class="container-fluid">
+<div class="container">
   <div class="row gx-5" style="margin-bottom: 50px;">
-    <div class="col-5">
+    <div class="col-7">
       <div class="p-1">
-        <h4 class="text-capitalize">{{patient}}</h4>
+        <div class="col">
+          <h4 class="text-capitalize">{{patient}}</h4>
+          <a class="btn btn-outline-dark btn-sm" href="{% url 'edit_patient' patient.id %}" style="margin-bottom:50px;">edit</a>
+        </div>
         <table class="table">
           <tbody>
             <tr>
@@ -39,57 +42,34 @@
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Allergies</h5>
-          {% for allergie in allergies %}
-          {{ allergie }}
+          {% for allergy in allergies %}
+            <span class="badge rounded-pill bg-dark">{{ allergy }}</span>
           {% endfor %}
-        </div>
-      </div>
-    </div>
-    <div class="col-5">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Active Medication</h5>
-          <ul>
-          {% for medication in active_medications %}
-            <li>{{medication.name}}</li>
-          {% endfor %}
-          </ul>
         </div>
       </div>
     </div>
   </div>
   <div class="row gx-5">
     <div class="col">
-      <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#consultationModal" style="margin-bottom: 50px;">
-        new appointment
-      </button>
+      <h5>Medication</h5>
       <table class="datatable table table-striped">
         <thead>
           <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Doctor</th>
-            <th scope="col">Illness</th>
-            <th scope="col">Symptoms</th>
-            <th scope="col">Patient Type</th>
-            <th scope="col">Medication</th>
+            <th scope="col">Name</th>
+            <th scope="col">Dosage</th>
+            <th scope="col">Frequency</th>
+            <th scope="col">Start date</th>
+            <th scope="col">End date</th>
           </tr>
         </thead>
         <tbody>
-          {% for appointment in appointments %}
+          {% for medication in medications %}
           <tr>
-            <td>{{ appointment.date }} {{ appointment.time }}</td>
-            <td>{{ appointment.doctor }}</td>
-            <td>{{ appointment.illness }}</td>
-            <td>{{ appointment.symptoms }}</td>
-            <td>{{ appointment.patient_type }}</td>
-            <td>
-              <button type="button" class="btn btn-outline-dark btn-sm" 
-                data-bs-toggle="modal" data-bs-target="#medicationAddModal" 
-                data-bs-medicationurl="{% url 'create_patient_consultation_medication' patient.id appointment.id %}">
-                add
-              </button>
-              <a class="btn btn-outline-dark btn-sm" href="">view</a>
-            </td>
+            <td>{{ medication.name }}</td>
+            <td>{{ medication.dosage }}</td>
+            <td>{{ medication.frequency }}</td>
+            <td>{{ medication.start|date:"Y-m-d" }}</td>
+            <td>{{ medication.end|date:"Y-m-d" }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -97,74 +77,4 @@
     </div>
   </div>
 </div>
-
-<div class="modal fade" id="medicationAddModal" tabindex="-1" aria-labelledby="medicationAddModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="medicationAddModalLabel">Medication</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="create-patient-appointment-medication" data-medication-url="">
-          <div class="mb-3">
-            <label for="name" class="col-form-label">Name</label>
-            <input type="text" class="form-control" id="name" name="name">
-          </div>
-          <div class="mb-3">
-            <label for="start" class="col-form-label">Start</label>
-            <input type="date" class="form-control" id="start" name="start">
-          </div>
-          <div class="mb-3">
-            <label for="end" class="col-form-label">End</label>
-            <input type="date" class="form-control" id="end" name="end">
-          </div>
-          <div class="mb-3">
-            <label for="instructions" class="col-form-label">Instructions</label>
-            <textarea class="form-control" id="instructions" name="instructions"></textarea>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="save-medication">Save</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-  document.getElementById('medicationAddModal').addEventListener('show.bs.modal', function (event) {
-    const url = event.relatedTarget.getAttribute('data-bs-medicationurl');
-    document.getElementById('create-patient-appointment-medication').setAttribute('data-medication-url', url)
-  });
-  document.getElementById('save-medication').onclick = () => {
-    const form = document.getElementById('create-patient-appointment-medication');
-    const url = form.getAttribute('data-medication-url')
-    const data = Object.fromEntries(new FormData(form))
-
-    postData(url, data).then((data) => {
-      location.reload();
-    });
-  };
-  document.getElementById('save-consulation').onclick = () => {
-    const data =  Object.fromEntries(new FormData(document.getElementById('create-patient-appointment')))
-    postData("{% url 'create_patient_consultation' patient.id %}", data).then((data) => {
-      location.reload();
-    });
-    // const data = Object.fromEntries(new FormData(document.getElementById('create-patient-appointment')));
-    // const response = fetch("{% url 'create_patient_consultation' patient.id %}", {
-    //   method: 'POST',
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     "X-CSRFToken": "{{ csrf_token }}"
-    //   },
-    //   body: JSON.stringify(data)
-    // }).then((response) => {
-    //   return response.json()
-    // }).then((data) => {
-    //   location.reload();
-    // });
-  };
-</script>
 {% endblock %}

@@ -65,19 +65,30 @@
   // In your Javascript (external .js resource or <script> tag)
 
 new DataTable('.datatable');
-
 function postData(url, data) {
-  const response = fetch(url, {
-    method: "POST",
+  return post(url, data, "POST")
+}
+
+function getData(url) {
+  return post(url)
+}
+
+
+function post(url, data = [], method = "GET") {
+  let obj = {
+    method: method,
     headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": "{{ csrf_token }}"
-      },
-    body: JSON.stringify(data),
-  }).then((res) => {
+      "Content-Type": "application/json",
+      "X-CSRFToken": "{{ csrf_token }}"
+    }
+  }
+
+  if (method == 'POST') {
+    obj.body = JSON.stringify(data)
+  }
+  return fetch(url, obj).then((res) => {
     return res.json();
   });
-  return response;
 }
 </script>
 </html>

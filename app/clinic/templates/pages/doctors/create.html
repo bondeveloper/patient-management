@@ -1,41 +1,61 @@
 {% extends "components/base.html" %}
 {% block content %}
 <div class="container">
-  <h2 class="text-center">Create Doctor</h2>
-  <form method="post">
-    {% csrf_token %}
-    <div class="mb-2">
-      <label for="user" class="form-label">User</label>
-      <select class="form-select" name="user">
-        <option value="" disabled selected>-</option>
-        {% for user in users %}
-        <option value="{{ user.id }}">{{ user}}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="mb-2">
-      <label for="phone" class="form-label">Phone</label>
-      <input type="text" class="form-control" id="phone" name="phone">
-    </div>
-    <div class="mb-2">
-      <label for="department" class="form-label">Department</label>
-      <input type="text" class="form-control" id="department" name="department">
-    </div>
-    <div class="mb-2">
-      <label for="street" class="form-label">Street</label>
-      <input type="text" class="form-control" id="street" name="street">
-    </div>
-    <div class="mb-2">
-      <label for="city" class="form-label">City</label>
-      <input type="text" class="form-control" id="city" name="city">
-    </div>
-    <div class="mb-2">
-      <label for="postal_code" class="form-label">Postal Code</label>
-      <input type="text" class="form-control" id="postal_code" name="postal_code">
-    </div>
-    <div class="mb-2">
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
-  </form>
+  <div class="row">
+    <h2 class="text-center">Create Doctor</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-2">
+        <label for="user" class="col-form-label">User</label>
+        <select class="form-select" id="id_user" name="user">
+          <option value="" disabled selected>-</option>
+          {% for key, value in types %}
+          <option value="{{ key }}">{{ value}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="phone" class="form-label">Phone</label>
+        <input type="text" class="form-control" id="phone" name="phone">
+      </div>
+      <div class="mb-3">
+        <label for="department" class="form-label">Department</label>
+        <input type="text" class="form-control" id="department" name="department">
+      </div>
+      <div class="mb-3">
+        <label for="street" class="form-label">Street</label>
+        <input type="text" class="form-control" id="street" name="street">
+      </div>
+      <div class="mb-3">
+        <label for="city" class="form-label">City</label>
+        <input type="text" class="form-control" id="city" name="city">
+      </div>
+      <div class="mb-3">
+        <label for="postal_code" class="form-label">Postal Code</label>
+        <input type="number" class="form-control" id="postal_code" name="postal_code">
+      </div>
+      <div class="mb-3">
+        <button type="submit" class="btn btn-dark">Submit</button>
+      </div>
+    </form>
+  </div>
 </div>
+
+<script>
+  $(document).ready(function() {
+    $('#id_user').select2({
+      ajax: {
+        url: "{% url 'get_users' %}",
+        dataType: 'json',
+        processResults: function(data) {
+          return {
+            results: $.map(data, function(item) {
+              return {id: item.id, text: item.first_name +" "+item.last_name}
+            })
+          }
+        }
+      }
+    });
+});
+</script>
 {% endblock %}

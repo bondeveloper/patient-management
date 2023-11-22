@@ -1,33 +1,48 @@
 {% extends "components/base.html" %}
 {% block content %}
 <div class="container">
-  <a class="btn btn-outline-primary btn-sm" href="{% url 'create_doctor' %}">add</a>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th scope="col">Full Name</th>
-        <th scope="col">Position</th>
-        <th scope="col">Department</th>
-        <th scope="col">Phone</th>
-        <th scope="col">Address</th>
-        <th scope="col">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for staff in data %}
-      <tr>
-        <td>{{ staff.user.first_name }} {{ staff.user.last_name }}</td>
-        <td>{{ staff.position }}</td>
-        <td>{{ staff.department }}</td>
-        <td>{{ staff.phone }}</td>
-        <td>{{ staff.street }} {{ staff.city }} {{ staff.postal_code }}</td>
-        <td>
-          <a class="btn btn-outline-dark btn-sm" href="{% url 'view_doctor' staff.id %}">view</a>
-          <a class="btn btn-outline-danger btn-sm" href="{% url 'delete_doctor' staff.id %}" onclick="return confirm('Continue delete')">delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="row gx-5" style="margin-bottom: 50px;">
+    <div class="col-4">
+      <form class="row g-3">
+        <div class="col-auto">
+          <input type="text" class="form-control" id="q" name="q" value="{{filter}}" placeholder="name, phone, department">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-dark mb-3">search</button>
+          <button class="btn btn-outline-dark mb-3" id="clear">clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col">
+    <a class="btn btn-dark btn-sm" href="{% url 'create_doctor' %}" style="margin-bottom:50px;">add</a>
+  </div>
+  <div class="row gx-5" style="margin-bottom: 50px;">
+    <table class="datatable table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Full Name</th>
+          <th scope="col">Department</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Address</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doctor in doctors %}
+        <tr>
+          <td>{{ doctor.user.first_name }} {{ doctor.user.last_name }}</td>
+          <td>{{ doctor.department }}</td>
+          <td>{{ doctor.phone }}</td>
+          <td>{{ doctor.street }} {{ doctor.city }} {{ doctor.postal_code }}</td>
+          <td>
+            <a class="btn btn-outline-dark btn-sm" href="{% url 'edit_doctor' doctor.id %}">edit</a>
+            <!-- <a class="btn btn-outline-danger btn-sm" href="{% url 'delete_doctor' doctor.id %}" onclick="return confirm('you sure?')">delete</a> -->
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
