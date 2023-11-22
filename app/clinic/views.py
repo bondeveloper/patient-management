@@ -30,7 +30,7 @@ class UpdateDoctorView(UpdateView):
   model = Doctor
   exclude = ('user',)
   form_class = UpdateDoctorModelForm
-  template_name = 'pages/doctors/list.html'
+  template_name = 'pages/doctors/create.html'
   success_url = '/doctors/'
 
 class ListDoctorView(ListView):

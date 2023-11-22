@@ -39,7 +39,7 @@ urlpatterns = [
 
     path('doctors/', ListDoctorView.as_view(), name='doctors'),
     path('doctors/create', CreateDoctorView.as_view(), name='create_doctor'),
-    path('doctors/<slug:pk>/edit', UpdateDoctorView.as_view(), name='edit_doctor'),
+    path('doctors/<int:pk>/edit', UpdateDoctorView.as_view(), name='edit_doctor'),
     path('doctors/<int:id>/delete', delete_doctor, name='delete_doctor'),
     path('api/users/', get_users, name='get_users'),
 # CHECKED END
