@@ -37,7 +37,7 @@
           <td>{{ doctor.street }} {{ doctor.city }} {{ doctor.postal_code }}</td>
           <td>
             <a class="btn btn-outline-dark btn-sm" href="{% url 'edit_doctor' doctor.id %}">edit</a>
-            <!-- <a class="btn btn-outline-danger btn-sm" href="{% url 'delete_doctor' doctor.id %}" onclick="return confirm('you sure?')">delete</a> -->
+            <a class="btn btn-outline-danger btn-sm" href="{% url 'delete_doctor' doctor.id %}" onclick="return confirm('you sure?')">delete</a>
           </td>
         </tr>
         {% endfor %}

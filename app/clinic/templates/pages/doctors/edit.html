@@ -19,12 +19,12 @@
             <label for="email" class="form-label">Email</label>
             <input type="text" class="form-control" id="email" name="email" value="{{doctor.user.email}}">
           </div>
+        </div>
+        <div class="col">
           <div class="mb-2">
             <label for="phone" class="form-label">Phone</label>
             <input type="text" class="form-control" id="phone" name="phone" value="{{doctor.phone}}">
           </div>
-        </div>
-        <div class="col">
           <div class="mb-2">
             <label for="department" class="form-label">Department</label>
             <input type="text" class="form-control" id="department" name="department" value="{{doctor.department}}">
@@ -41,12 +41,11 @@
             <label for="postal_code" class="form-label">Postal Code</label>
             <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{doctor.postal_code}}">
           </div>
+          <div class="mb-2">
+            <button type="submit" class="btn btn-dark">Submit</button>
+          </div>
         </div>
       </div>    
-        
-      <div class="mb-2">
-        <button type="submit" class="btn btn-dark">Submit</button>
-      </div>
     </form>
   </div>
 </div>

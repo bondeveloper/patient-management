@@ -1,0 +1,38 @@
+[
+  {
+    "model": "accounts.user",
+    "pk": 4,
+    "fields": {
+      "email": "super1@123.com",
+      "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+      "first_name": "Super1",
+      "last_name": "Doe",
+      "is_superuser": true,
+      "is_staff": true,
+      "is_active": true
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 5,
+    "fields": {
+      "email": "staff1@123.com",
+      "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+      "first_name": "Staff1",
+      "last_name": "Doe",
+      "is_staff": true,
+      "is_active": true
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 5,
+    "fields": {
+      "email": "user1@123.com",
+      "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+      "first_name": "User1",
+      "last_name": "Doe",
+      "is_active": true
+    }
+  }
+]

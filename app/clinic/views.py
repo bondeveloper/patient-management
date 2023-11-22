@@ -1,25 +1,22 @@
-from typing import Any
-from django.db.models.query import QuerySet
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_http_methods
-from clinic.models import Doctor, Patient, Appointment, Medication
-from django.http import HttpResponse, JsonResponse
-import json
-from datetime import datetime, date
-from django.core import serializers
-from django.views.generic import ListView, FormView
 from django.db.models import Q
-from .forms import AppointmentCreationForm
+from django.contrib.auth.models import Group
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.decorators import login_required, permission_required
+from django.views.decorators.http import require_http_methods
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from datetime import datetime, date
 import logging
+import json
+
+from clinic.models import Doctor, Patient, Appointment, Medication
+from .forms import AppointmentCreationForm
 
 logger = logging.getLogger(__name__)
 
-
+@login_required
 def index(request):
-  return redirect('appointments_dashboard')
-
+  return render(request, 'pages/home.html')
 
 @require_http_methods(["GET", "POST"])
 def signin(request):
@@ -38,9 +35,10 @@ def signin(request):
 @login_required
 def signout(request):
   logout(request)
-  return redirect('/')
+  return redirect('signin')
 
 @login_required
+@permission_required('appointment.view_appointment')
 @require_http_methods(["GET"])
 def appointments_dashboard(request):
   form = AppointmentCreationForm()
@@ -108,6 +106,7 @@ def list_patients(request):
   return render(request, 'pages/patients/list.html', {"patients": patients, "filter":filter})
 
 @login_required
+@permission_required('doctor.view_doctor')
 def list_doctors(request):
   request_data = request.GET
   filter = ''
@@ -145,17 +144,28 @@ def create_patient(request):
   return render(request, 'pages/patients/create.html', {"genders": Patient.get_genders()})
 
 @login_required
+@permission_required('doctor.add_doctor')
 @require_http_methods(["GET", "POST"])
 def create_doctor(request):
   if request.method=='POST':
-    Doctor.objects.create(
-      user=get_user_model().objects.get(pk=request.POST.get('user')),
-      phone=request.POST.get('phone'),
-      department=request.POST.get('department'),
-      street=request.POST.get('street'),
-      city=request.POST.get('city'),
-      postal_code=request.POST.get('postal_code')
+    request_data = request.POST
+    user = get_user_model().objects.create_user(
+      email=request_data.get('email'),
+      password=request_data.get('password'),
+      first_name=request_data.get('first_name'),
+      last_name=request_data.get('last_name')
     )
+    Doctor.objects.create(
+      user=user,
+      phone=request_data.get('phone'),
+      department=request_data.get('department'),
+      street=request_data.get('street'),
+      city=request_data.get('city'),
+      postal_code=request_data.get('postal_code')
+    )
+
+    group = Group.objects.get(name='doctor') 
+    group.user_set.add(user)
     return redirect('doctors')
   return render(request, 'pages/doctors/create.html')
   
@@ -222,7 +232,7 @@ def view_appointment(request, id):
     appointment.patient_type = request.POST.get('patient_type')
     appointment.save()
   
-  active_medication = appointment.medication_set.all().filter(end__gt=datetime.now())
+  active_medication = Medication.objects.filter(appointment__patient=appointment.patient, end__gt=date.today())
   return render(request, 'pages/appointments/view.html', {
     "appointment": appointment,
     "medications":active_medication

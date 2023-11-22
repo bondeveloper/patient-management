@@ -21,6 +21,7 @@ urlpatterns = [
     path('', index, name='index'),
     path('signin/', signin, name='signin'),
     path('signout/', signout, name='signout'),
+
     path('appointments/', appointments_dashboard, name='appointments_dashboard'),
     path('appointments/<int:id>/delete', delete_appointment, name='delete_appointment'),
     path('appointments/<int:id>/medication/create', create_medication, name='create_medication'),
@@ -30,7 +31,6 @@ urlpatterns = [
     path('doctors/', list_doctors, name='doctors'),
 
     path('api/patients/', get_patients, name='get_patients'),
-    path('api/users/', get_users, name='get_users'),
 
     path('patients/create', create_patient, name='create_patient'),
     path('doctors/create', create_doctor, name='create_doctor'),
