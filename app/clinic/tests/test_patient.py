@@ -8,7 +8,7 @@ class PatientTests(TestCase):
     self.patient = Patient(
       first_name='jane',
       last_name='doe' ,
-      date_of_birth='0000/10/05',
+      date_of_birth='1975-10-05',
       email='jane.doe@none.com',
       gender='female',
       street='1 purm street',
@@ -24,7 +24,7 @@ class PatientTests(TestCase):
     patient = Patient(
       first_name='john',
       last_name='doe' ,
-      date_of_birth='0000/10/05',
+      date_of_birth='1975-10-05',
       email='jane.doe@none.com',
       gender='female',
       street='1 purm street',

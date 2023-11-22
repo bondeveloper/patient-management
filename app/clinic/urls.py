@@ -42,7 +42,7 @@ urlpatterns = [
 
     path('patients/<int:id>/delete', delete_patient, name='delete_patient'),
     path('patients/<int:id>/appointment/<int:aid>', view_patient_appointment, name='view_patient_appointment'),
-    path('patients/<int:id>/appointments/create', create_patient_consultation, name='create_patient_consultation'),
+    # path('patients/<int:id>/appointments/create', create_patient_consultation, name='create_patient_consultation'),
     path('patients/<int:pid>/appointments/<int:cid>/medication/create', create_patient_consultation_medication, name='create_patient_consultation_medication'),
 
     

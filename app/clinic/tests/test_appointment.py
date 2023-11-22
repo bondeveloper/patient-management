@@ -11,7 +11,7 @@ class AppointmentTests(TestCase):
     self.patient = Patient(
       first_name='jane',
       last_name='doe' ,
-      date_of_birth='0000/10/05',
+      date_of_birth='1975-10-05',
       email='jane.doe@none.com',
       gender='female',
       street='1 purm street',
@@ -44,7 +44,8 @@ class AppointmentTests(TestCase):
       illness='food poisoning',
       notes='went abroad for holidays and suspect might have had bed food.',
       patient_type='out',
-      datetime='2023-11-19'
+      date='2023-11-22',
+      time='16:17',
     )
     self.appointment.save()
 
@@ -62,24 +63,16 @@ class AppointmentTests(TestCase):
     self.assertTrue(len(Appointment.objects.all()) == 0)
 
   def test_making_appointment(self):
-    url = reverse('create_patient_appointment', args=[self.doctor.id])
+    url = reverse('doctor_appointments_create')
     payload = {
+      "id_patient": self.patient.id,
       "symptoms":'headache, fever, vomiting',
       "illness":'food poisoning',
       "notes":'went abroad for holidays and suspect might have had bed food.',
-      "patient_type":'out',
-      "datetime": '2023-11-21 12:20:00'
+      "patient_type":'out patient',
+      "date": '2023-11-22',
+      "time": '12:00'
     }
     res = self.client.post(url, json.dumps(payload), content_type="application/json")
     self.assertTrue(res.json().get('success'))
 
-  # def test_appointment_medication_added(self):
-  #   url = reverse('create_patient_appointment_medication', args=[self.patient.id, self.appointment.id])
-  #   payload = {
-  #     "name":'brufen',
-  #     "instructions":'2 pills 2 times a day after meals',
-  #     "start": "2023-11-19",
-  #     "end": "2023-12-07"
-  #   }
-  #   res = self.client.post(url, json.dumps(payload), content_type="application/json")
-  #   self.assertTrue(res.json().get('success'))
