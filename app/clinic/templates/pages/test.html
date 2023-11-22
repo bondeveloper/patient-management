@@ -1,0 +1,21 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="container" style="max-width:600px">
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">Create Doctor</h1>
+        <p class="lead">A doctor can only be created from existing staff users.</p>
+    </div>
+    <div class="py-5">
+        <div class="row">
+            <div class="col-12">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="submit">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

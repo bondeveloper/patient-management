@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'clinic',
+    'extra_views'
 ]
 
 MIDDLEWARE = [

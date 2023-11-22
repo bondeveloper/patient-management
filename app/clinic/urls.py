@@ -18,6 +18,7 @@ from django.urls import path
 from clinic.views import *
 
 urlpatterns = [
+    
     path('', index, name='index'),
     path('signin/', signin, name='signin'),
     path('signout/', signout, name='signout'),
@@ -33,10 +34,16 @@ urlpatterns = [
     path('api/patients/', get_patients, name='get_patients'),
 
     path('patients/create', create_patient, name='create_patient'),
-    path('doctors/create', create_doctor, name='create_doctor'),
+
+# CHECKED START
+    path('doctors/create', CreateDoctorView.as_view(), name='create_doctor'),
+    path('doctors/<slug:pk>/edit', UpdateDoctorView.as_view(), name='edit_doctor'),
+    path('doctors/<int:id>/delete', delete_doctor, name='delete_doctor'),
+    path('api/users/', get_users, name='get_users'),
+# CHECKED END
+
 
     path('patients/<int:id>/edit', edit_patient, name='edit_patient'),
-    path('doctors/<int:id>/edit', edit_doctor, name='edit_doctor'),
     
     path('patients/<int:id>/view', view_patient, name='view_patient'),
 
@@ -46,7 +53,7 @@ urlpatterns = [
     path('patients/<int:pid>/appointments/<int:cid>/medication/create', create_patient_consultation_medication, name='create_patient_consultation_medication'),
 
     
-    path('doctors/<int:id>/delete', delete_doctor, name='delete_doctor'),
+
     path('doctors/<int:id>/view', view_doctor, name='view_doctor'),
     path('doctors/appointments/create', doctor_appointments_create, name='doctor_appointments_create')
 ]

@@ -8,7 +8,11 @@
     <form method="post">
       {% csrf_token %}
       <div class="row">
-        <div class="col">
+		{{ form.as_p }}
+		<div class="mb-2">
+            <button type="submit" class="btn btn-dark">Submit</button>
+		</div>
+        <!-- <div class="col">
           <div class="mb-2">
             <label for="email" class="form-label">Email</label>
             <input type="text" class="form-control" id="email" name="email">
@@ -50,10 +54,27 @@
           <div class="mb-2">
             <button type="submit" class="btn btn-dark">Submit</button>
           </div>
-        </div>
+        </div> -->
       </div>
     </form>
   </div>
 </div>
 
+<script>
+	$(document).ready(function() {
+	  $('#id_user').select2({
+		ajax: {
+		  url: "{% url 'get_users' %}",
+		  dataType: 'json',
+		  processResults: function(data) {
+			return {
+			  results: $.map(data, function(item) {
+				return {id: item.id, text: item.first_name +" "+item.last_name}
+			  })
+			}
+		  }
+		}
+	  });
+  });
+  </script>
 {% endblock %}

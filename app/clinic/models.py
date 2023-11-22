@@ -45,6 +45,7 @@ class Doctor(models.Model):
 
   def __str__(self) -> str:
      return f"{self.user.first_name} {self.user.last_name}"
+  
 
 class Appointment(models.Model):
   patient = models.ForeignKey(

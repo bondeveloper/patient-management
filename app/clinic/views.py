@@ -3,16 +3,47 @@ from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.http import require_http_methods
+from django.views import View
+from django.views.generic import TemplateView
+from django.views.generic.edit import CreateView, UpdateView
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from datetime import datetime, date
 import logging
 import json
+from django.template.response import TemplateResponse
 
 from clinic.models import Doctor, Patient, Appointment, Medication
-from .forms import AppointmentCreationForm
+from .forms import AppointmentCreationForm, CreateDoctorModelForm, UpdateDoctorModelForm
 
 logger = logging.getLogger(__name__)
+
+
+class CreateDoctorView(CreateView):
+  model = Doctor
+  form_class = CreateDoctorModelForm
+  template_name = 'pages/doctors/create.html'
+  success_url = '/doctors/'
+
+class UpdateDoctorView(UpdateView):
+  model = Doctor
+  exclude = ('user',)
+  form_class = UpdateDoctorModelForm
+  template_name = 'pages/doctors/create.html'
+  success_url = '/doctors/'
+
+def get_users(request):
+  if is_ajax(request=request):
+    term = request.GET.get('term')
+    patients = get_user_model().objects.filter(
+      Q(first_name__icontains=term) |
+      Q(last_name__icontains=term) |
+      Q(email__icontains=term)
+    )
+    users_response = list(patients.values())
+    return JsonResponse(users_response, safe=False)
+
 
 @login_required
 def index(request):
@@ -73,17 +104,6 @@ def get_patients(request):
     )
     patient_response = list(patients.values())
     return JsonResponse(patient_response, safe=False)
-
-def get_users(request):
-  if is_ajax(request=request):
-    term = request.GET.get('term')
-    patients = get_user_model().objects.filter(
-      Q(first_name__icontains=term) |
-      Q(last_name__icontains=term) |
-      Q(email__icontains=term)
-    )
-    users_response = list(patients.values())
-    return JsonResponse(users_response, safe=False)
   
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
