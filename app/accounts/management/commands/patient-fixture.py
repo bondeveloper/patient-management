@@ -4,4 +4,4 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
   def handle(self, *args, **kwargs):
-    call_command("loaddata", "db_user_fixture.json")
+    call_command("loaddata", "db_patient_fixture.json")

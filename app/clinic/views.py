@@ -33,6 +33,7 @@ class UserAccessMixin(PermissionRequiredMixin):
       return redirect('/') 
     return super(UserAccessMixin, self).dispatch(request, *args, **kwargs)
 
+
 class CreateDoctorView(UserAccessMixin, CreateView):
 
   permission_required = 'clinic.add_doctor'
@@ -41,6 +42,14 @@ class CreateDoctorView(UserAccessMixin, CreateView):
   form_class = CreateDoctorModelForm
   template_name = 'pages/doctors/create.html'
   success_url = '/doctors/'
+
+  def form_valid(self, form):
+    # form.instance.save()
+    # self.user.teams.add(form.instance)
+    user = get_user_model().objects.get(pk=form.changed_data['user'])
+    user.groups.add('doctor')
+    form.save()
+    return super(form_valid, self).form_valid(form)
 
 
 class UpdateDoctorView(UserAccessMixin, UpdateView):
