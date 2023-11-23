@@ -16,7 +16,7 @@ if you prefer a single command
 docker compose up --build
 ```
 
-access the applicatio on the broswer on http://127.0.0.1:8000/
+access the application on the broswer on http://127.0.0.1:8000/
 
 
 #### Step 2
