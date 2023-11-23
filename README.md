@@ -34,6 +34,8 @@ docker exec -it patient-management-app-1 bash
 run the following command inside the container to create the users. PS at this point your migrations have been run for you
 ```bash
 python manage.py user-fixture
+
+python manage.py patient-fixture
 ```
 
 
