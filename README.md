@@ -20,9 +20,9 @@ access the application on the browser on http://127.0.0.1:8000/
 
 
 #### Step 2
-there are two commands that I incded to add users and patients for you to save time. See below table for auth users
+There are two commands that I included to add users and patients for you to save time. See below table for auth users
 
-this is a dummy system so we can create dummy users to fast track the process
+PS: because this is a dummy system so we can create dummy users to fast track the process
 
 ##### 2.1
 ssh into the container
