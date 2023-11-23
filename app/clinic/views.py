@@ -260,39 +260,6 @@ def delete_appointment(request, id):
   Appointment.objects.get(pk=id).delete()
   return redirect('appointments')
 
-# def view_appointment(request, id):
-#   appointment = Appointment.objects.get(pk=id)
-#   if request.method=='POST':
-#     appointment.illness = request.POST.get('illness')
-#     appointment.symptoms = request.POST.get('symptoms')
-#     appointment.notes = request.POST.get('notes')
-#     appointment.patient_type = request.POST.get('patient_type')
-#     appointment.save()
-  
-#   active_medication = Medication.objects.filter(appointment__patient=appointment.patient, end__gt=date.today())
-#   return render(request, 'pages/appointments/view.html', {
-#     "appointment": appointment,
-#     "medications":active_medication
-#     })
-
-# @login_required
-# @permission_required('appointment.view_appointment')
-# @require_http_methods(["GET"])
-# def appointments_dashboard(request):
-#   form = AppointmentCreationForm()
-#   filter_date = ''
-#   request_data = request.GET
-#   if 'date' in request_data:
-#     filter_date = request_data.get('date')
-#   appointments = Appointment.objects.filter(
-#     Q(date__icontains=filter_date)
-#   )
-#   response_data = {
-#     "form": form,
-#     "appointments": appointments,
-#     "filter_date":filter_date
-#   }
-#   return render(request, 'pages/appointments/dashboard.html', response_data)
 
 def create_medication(request, id):
   try:
