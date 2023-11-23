@@ -3,7 +3,7 @@ A django system for managing patient data
 
 ## Local setup
 ### Docker
-You need to have docker desktop running. This application will not run on an M1 machine. I tried!
+You need to have docker desktop running. This application will not run on an M1 machine. I tried though not hard enough!
 
 #### Step 1
 ```bash
