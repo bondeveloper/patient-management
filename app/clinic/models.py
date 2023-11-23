@@ -21,7 +21,7 @@ class Patient(models.Model):
   street = models.CharField(max_length=255)
   city = models.CharField(max_length=255)
   postal_code = models.IntegerField()
-  allergies = models.CharField(max_length=255)
+  allergies = models.CharField(max_length=255, blank=False)
 
   def __str__(self) -> str:
     return f"{self.first_name} {self.last_name}"
@@ -29,7 +29,7 @@ class Patient(models.Model):
   @classmethod
   def get_genders(self):
     return self.GENDER_CHOICES
-
+  
 
 class Doctor(models.Model):
   

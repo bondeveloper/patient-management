@@ -1,16 +1,16 @@
 from django import forms
 from .models import Appointment, Patient, Doctor
 
-class AppointmentCreationForm(forms.ModelForm):
+# class AppointmentCreationForm(forms.ModelForm):
 
-  class Meta:
-    model = Appointment
-    fields = ["date", "time", "patient"]
+#   class Meta:
+#     model = Appointment
+#     fields = ["date", "time", "patient"]
 
   
-  def __init__(self, *args, **kwaargs):
-    super().__init__(*args, **kwaargs)
-    self.fields['patient'].queryset = Patient.objects.none()
+#   def __init__(self, *args, **kwaargs):
+#     super().__init__(*args, **kwaargs)
+#     self.fields['patient'].queryset = Patient.objects.none()
 
 
 class BaseDoctorModelForm(forms.ModelForm):
@@ -42,6 +42,7 @@ class UpdateDoctorModelForm(BaseDoctorModelForm):
 
 class CreatePatientModelForm(forms.ModelForm):
 
+
   class Meta:
     model = Patient
     fields = '__all__'
@@ -57,8 +58,21 @@ class CreatePatientModelForm(forms.ModelForm):
       'phone': forms.TextInput(attrs={'class': 'form-control'}),
       'gender': forms.Select(attrs={'class': 'form-control'}),
       'occupation': forms.TextInput(attrs={'class': 'form-control'}),
-      'allergies': forms.TextInput(attrs={'class': 'form-control'}),
+      'allergies': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma separated list'}),
       'street': forms.TextInput(attrs={'class': 'form-control'}),
       'city': forms.TextInput(attrs={'class': 'form-control'}),
       'postal_code': forms.NumberInput(attrs={'class': 'form-control'})
+    }
+
+class UpdateAppointmentModelForm(forms.ModelForm):
+
+
+  class Meta:
+    model = Appointment
+    fields = ('patient_type', 'symptoms', 'illness', 'notes')
+    widgets = {
+      'patient_type': forms.TextInput(attrs={'class': 'form-control'}),
+      'symptoms': forms.TextInput(attrs={'class': 'form-control'}),
+      'illness': forms.TextInput(attrs={'class': 'form-control'}),
+      'notes': forms.Textarea(attrs={'class': 'form-control'})
     }

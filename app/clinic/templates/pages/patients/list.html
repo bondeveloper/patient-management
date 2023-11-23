@@ -5,7 +5,7 @@
     <div class="col-4">
       <form class="row g-3">
         <div class="col-auto">
-          <input type="text" class="form-control" id="q" name="q" placeholder="name, dob, email, phone" value="{{filter}}">
+          <input type="text" class="form-control" id="q" name="q" placeholder="name, dob, email, phone, gender" value="{{filter}}">
         </div>
         <div class="col-auto">
           <button class="btn btn-dark mb-3">search</button>
@@ -49,8 +49,6 @@
   </div>
 </div>
 <script>
-  document.getElementById('clear').onclick = () => {
-    document.getElementById('q').value = '';
-  }
+
 </script>
 {% endblock %}

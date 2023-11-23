@@ -5,10 +5,11 @@
     <div class="col-4">
       <form class="row g-3">
         <div class="col-auto">
-          <input type="date" class="form-control" name="date" placeholder="Date" value="{{filter_date}}">
+          <input type="date" class="form-control" name="q" placeholder="Date" value="{{filter_date}}">
         </div>
         <div class="col-auto">
           <button class="btn btn-outline-dark mb-3">search</button>
+          <button class="btn btn-outline-dark mb-3" id="clear">clear</button>
         </div>
       </form>
     </div>
@@ -17,7 +18,7 @@
         Appointments
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
           {{ appointments|length }}
-          <span class="visually-hidden">Appoitments</span>
+          <span class="visually-hidden">Appointments</span> {{count}}
         </span>
       </button>
     </div>
@@ -50,7 +51,8 @@
             <td>{{ appointment.patient.email }}</td>
             <td>
               <a class="btn btn-outline-dark btn-sm" href="{% url 'view_appointment' appointment.id %}">view</a>
-              <a class="btn btn-outline-danger btn-sm" id="delete-appointment" data-id="{{appointment.id}}">delete</a>
+              <!-- <a class="btn btn-outline-danger btn-sm" id="delete-appointment" data-id="{{appointment.id}}" onclick="deleteAp()">delete</a> -->
+              <a class="btn btn-outline-danger btn-sm" href="{% url 'delete_appointment' appointment.id %}" onclick="return confirm('you sure?')">delete</a>
             </td>
           </tr>
           {% endfor %}
@@ -140,18 +142,27 @@
     document.getElementById('save-appointment').onclick = () => {
       const data =  Object.fromEntries(new FormData(document.getElementById('create-appointment')))
       postData("{% url 'create_appointment' %}", data).then((data) => {
-        // location.reload();
-        console.log(data)
-      });
-    };
-
-    document.getElementById('delete-appointment').onclick = (e) => {
-      const id = e.target.dataset.id;
-      const url = "{% url 'delete_appointment' 12345 %}".replace(/12345/, id.toString());      
-      getData(url).then((response) => {
         location.reload();
       });
     };
+
+    function deleteAp(e) {
+      console.log(123);
+      const id = e.target.dataset.id;
+      const url = "{% url 'delete_appointment' 12345 %}".replace(/12345/, id.toString());
+      console.log(url);  
+    }
+
+    // document.getElementById('delete-appointment').onclick = (e) => {
+    //   e.preventDefault
+    //   console.log(123);
+    //   const id = e.target.dataset.id;
+    //   const url = "{% url 'delete_appointment' 12345 %}".replace(/12345/, id.toString());
+    //   console.log(url);  
+    //   // getData(url).then((response) => {
+    //   //   // location.reload();
+    //   // });
+    // };
    
 </script>
 {% endblock %}

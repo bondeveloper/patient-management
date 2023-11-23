@@ -1,3 +1,4 @@
+from typing import Any
 from django.db.models import Q
 from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -7,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from django.views import View
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from datetime import datetime, date
@@ -16,10 +17,11 @@ import json
 from django.template.response import TemplateResponse
 from django.core import serializers
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.urls import reverse
 
 
 from clinic.models import Doctor, Patient, Appointment, Medication
-from .forms import AppointmentCreationForm, CreateDoctorModelForm, UpdateDoctorModelForm, CreatePatientModelForm
+from .forms import CreateDoctorModelForm, UpdateDoctorModelForm, CreatePatientModelForm, UpdateAppointmentModelForm
 
 logger = logging.getLogger(__name__)
 
@@ -44,12 +46,10 @@ class CreateDoctorView(UserAccessMixin, CreateView):
   success_url = '/doctors/'
 
   def form_valid(self, form):
-    # form.instance.save()
-    # self.user.teams.add(form.instance)
-    user = get_user_model().objects.get(pk=form.changed_data['user'])
-    user.groups.add('doctor')
+    group = Group.objects.get(name='doctor') 
+    form.cleaned_data['user'].groups.add(group.id)
     form.save()
-    return super(form_valid, self).form_valid(form)
+    return super(CreateDoctorView, self).form_valid(form)
 
 
 class UpdateDoctorView(UserAccessMixin, UpdateView):
@@ -113,6 +113,11 @@ def get_doctors(request):
   data = [obj.get_doctor_user_data() for obj in object_list]
   return JsonResponse(data, safe=False)
 
+@login_required
+def delete_doctor(request, id):
+  Doctor.objects.get(pk=id).delete()
+  return redirect('doctors')
+
 class CreatePatientView(UserAccessMixin, CreateView):
     
     permission_required = 'clinic.add_patient'
@@ -154,24 +159,42 @@ class ListPatientView(UserAccessMixin, ListView):
           | Q(email__icontains=q)
           | Q(date_of_birth__icontains=q)
           | Q(phone__icontains=q)
+          | Q(gender__icontains=q)
         )
     return object_list
 
 
-def get_patients(request):
-  if is_ajax(request=request):
-    q = request.GET.get('q')
-    patients = Patient.objects.filter(
-      Q(first_name__icontains=q) |
-      Q(last_name__icontains=q) |
-      Q(email__icontains=q)
-    )
-    patient_response = list(patients.values())
-    return JsonResponse(patient_response, safe=False)
-  
-def is_ajax(request):
-    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+@login_required
+def view_patient(request, id):
+  patient = Patient.objects.get(pk=id)
+  allergies = patient.allergies.split(",")
+  appointments = patient.appointment_set.all()
+  medications = Medication.objects.filter(appointment__patient=patient)
+  return render(request, 'pages/patients/view.html', {
+    "patient": patient, 
+    "allergies":allergies,
+    "medications":medications
+    })
 
+def get_patients(request):
+  q = request.GET.get('q', False)
+  object_list = Patient.objects.all()
+  if q:
+    object_list = object_list.filter(
+      Q(first_name__icontains=q)
+      | Q(last_name__icontains=q)
+      | Q(email__icontains=q)
+      | Q(gender__icontains=q)
+    )
+  
+  patient_response = list(object_list.values())
+  return JsonResponse(patient_response, safe=False)
+
+
+@login_required
+def delete_patient(request, id):
+  Patient.objects.get(pk=id).delete()
+  return redirect('patients')
 
 class ListAppointmentView(UserAccessMixin, ListView):
 
@@ -179,6 +202,40 @@ class ListAppointmentView(UserAccessMixin, ListView):
 
   model = Appointment
   template_name = 'pages/appointments/list.html'
+
+  def get_context_data(self, **kwargs):
+    appointments = Appointment.objects.all()
+    context = {
+        'appointments': appointments,
+    }
+    kwargs.update(context)
+    return super().get_context_data(**kwargs)
+  
+  def get_queryset(self):
+    q = self.request.GET.get('q', False)
+    object_list = self.model.objects.all()
+    if q:
+        object_list = object_list.filter(
+          Q(date__icontains=q)
+        )
+    return object_list
+
+class UpdateAppointment(UserAccessMixin, UpdateView):
+    
+    permission_required = 'clinic.change_appointment'
+
+    model = Appointment
+    form_class = UpdateAppointmentModelForm
+    template_name = 'pages/appointments/view.html'
+    success_url = '/appointments/'
+
+    def get_context_data(self, **kwargs):
+      active_medication = Medication.objects.filter(appointment__patient=self.get_object().patient, end__gt=date.today())
+      context = {
+          'medications': active_medication,
+      }
+      kwargs.update(context)
+      return super().get_context_data(**kwargs)
 
 
 def create_appointment(request):
@@ -198,6 +255,26 @@ def create_appointment(request):
     success = False
     logger.error(e)
   return JsonResponse({'success':success})
+
+def delete_appointment(request, id):
+  Appointment.objects.get(pk=id).delete()
+  return redirect('appointments')
+
+# def view_appointment(request, id):
+#   appointment = Appointment.objects.get(pk=id)
+#   if request.method=='POST':
+#     appointment.illness = request.POST.get('illness')
+#     appointment.symptoms = request.POST.get('symptoms')
+#     appointment.notes = request.POST.get('notes')
+#     appointment.patient_type = request.POST.get('patient_type')
+#     appointment.save()
+  
+#   active_medication = Medication.objects.filter(appointment__patient=appointment.patient, end__gt=date.today())
+#   return render(request, 'pages/appointments/view.html', {
+#     "appointment": appointment,
+#     "medications":active_medication
+#     })
+
 # @login_required
 # @permission_required('appointment.view_appointment')
 # @require_http_methods(["GET"])
@@ -217,6 +294,19 @@ def create_appointment(request):
 #   }
 #   return render(request, 'pages/appointments/dashboard.html', response_data)
 
+def create_medication(request, id):
+  try:
+    success=True
+    appointment = Appointment.objects.get(pk=id)
+    data = json.loads(request.body)
+    medication = Medication(
+      appointment=appointment,
+      **data
+    )
+    medication.save()
+  except Exception as e:
+    success = False
+  return JsonResponse({'success':success})
 
 @login_required
 def index(request):
@@ -242,230 +332,173 @@ def signout(request):
   return redirect('signin')
 
 
-def delete_appointment(request, id):
-  appointment = Appointment.objects.get(pk=id)
-  appointment.delete()
-  return JsonResponse({"success": True})
+# @login_required
+# @permission_required('doctor.view_doctor')
+# def list_doctors(request):
+#   request_data = request.GET
+#   filter = ''
+#   if 'q' in request_data:
+#     filter = request_data.get('q')
+#     doctor = Doctor.objects.filter(
+#       Q(user__first_name__icontains=filter)
+#       | Q(user__last_name__icontains=filter)
+#       | Q(phone__icontains=filter)
+#       | Q(department__icontains=filter)
+#     )
+#   else:
+#     doctor = Doctor.objects.all()
+#   return render(request, 'pages/doctors/list.html', {"doctors": doctor})
 
 
-@login_required
-@permission_required('doctor.view_doctor')
-def list_doctors(request):
-  request_data = request.GET
-  filter = ''
-  if 'q' in request_data:
-    filter = request_data.get('q')
-    doctor = Doctor.objects.filter(
-      Q(user__first_name__icontains=filter)
-      | Q(user__last_name__icontains=filter)
-      | Q(phone__icontains=filter)
-      | Q(department__icontains=filter)
-    )
-  else:
-    doctor = Doctor.objects.all()
-  return render(request, 'pages/doctors/list.html', {"doctors": doctor})
+# @login_required
+# @require_http_methods(["GET", "POST"])
+# def create_patient(request):
+#   if request.method=='POST':
+#     Patient.objects.create(
+#       first_name=request.POST.get('first_name'),
+#       last_name=request.POST.get('last_name'),
+#       date_of_birth=request.POST.get('dob'),
+#       email=request.POST.get('email'),
+#       phone=request.POST.get('phone'),
+#       gender=request.POST.get('gender'),
+#       occupation=request.POST.get('occupation'),
+#       street=request.POST.get('street'),
+#       city=request.POST.get('city'),
+#       postal_code=request.POST.get('postal_code'),
+#       allergies=request.POST.get('allergies')
+#     )
+#     return redirect('patients')
+#   return render(request, 'pages/patients/create.html', {"genders": Patient.get_genders()})
 
+# @login_required
+# @permission_required('doctor.add_doctor')
+# @require_http_methods(["GET", "POST"])
+# def create_doctor(request):
+#   if request.method=='POST':
+#     request_data = request.POST
+#     user = get_user_model().objects.create_user(
+#       email=request_data.get('email'),
+#       password=request_data.get('password'),
+#       first_name=request_data.get('first_name'),
+#       last_name=request_data.get('last_name')
+#     )
+#     Doctor.objects.create(
+#       user=user,
+#       phone=request_data.get('phone'),
+#       department=request_data.get('department'),
+#       street=request_data.get('street'),
+#       city=request_data.get('city'),
+#       postal_code=request_data.get('postal_code')
+#     )
 
-@login_required
-@require_http_methods(["GET", "POST"])
-def create_patient(request):
-  if request.method=='POST':
-    Patient.objects.create(
-      first_name=request.POST.get('first_name'),
-      last_name=request.POST.get('last_name'),
-      date_of_birth=request.POST.get('dob'),
-      email=request.POST.get('email'),
-      phone=request.POST.get('phone'),
-      gender=request.POST.get('gender'),
-      occupation=request.POST.get('occupation'),
-      street=request.POST.get('street'),
-      city=request.POST.get('city'),
-      postal_code=request.POST.get('postal_code'),
-      allergies=request.POST.get('allergies')
-    )
-    return redirect('patients')
-  return render(request, 'pages/patients/create.html', {"genders": Patient.get_genders()})
-
-@login_required
-@permission_required('doctor.add_doctor')
-@require_http_methods(["GET", "POST"])
-def create_doctor(request):
-  if request.method=='POST':
-    request_data = request.POST
-    user = get_user_model().objects.create_user(
-      email=request_data.get('email'),
-      password=request_data.get('password'),
-      first_name=request_data.get('first_name'),
-      last_name=request_data.get('last_name')
-    )
-    Doctor.objects.create(
-      user=user,
-      phone=request_data.get('phone'),
-      department=request_data.get('department'),
-      street=request_data.get('street'),
-      city=request_data.get('city'),
-      postal_code=request_data.get('postal_code')
-    )
-
-    group = Group.objects.get(name='doctor') 
-    group.user_set.add(user)
-    return redirect('doctors')
-  return render(request, 'pages/doctors/create.html')
+#     group = Group.objects.get(name='doctor') 
+#     group.user_set.add(user)
+#     return redirect('doctors')
+#   return render(request, 'pages/doctors/create.html')
   
-def edit_patient(request, id):
-  patient = Patient.objects.get(pk=id)
-  if request.method=='POST':
-    request_data = request.POST
-    patient.first_name = request_data.get('first_name')
-    patient.last_name = request_data.get('last_name')
-    patient.date_of_birth = request_data.get('dob')
-    patient.email = request_data.get('email')
-    patient.phone = request_data.get('phone')
-    patient.gender = request_data.get('gender')
-    patient.occupation = request_data.get('occupation')
-    patient.allergies = request_data.get('allergies')
-    patient.street = request_data.get('street')
-    patient.city = request_data.get('city')
-    patient.save()
-    return redirect('patients')
-  return render(request, 'pages/patients/edit.html', {"patient":patient, "genders": Patient.get_genders()})
+# def edit_patient(request, id):
+#   patient = Patient.objects.get(pk=id)
+#   if request.method=='POST':
+#     request_data = request.POST
+#     patient.first_name = request_data.get('first_name')
+#     patient.last_name = request_data.get('last_name')
+#     patient.date_of_birth = request_data.get('dob')
+#     patient.email = request_data.get('email')
+#     patient.phone = request_data.get('phone')
+#     patient.gender = request_data.get('gender')
+#     patient.occupation = request_data.get('occupation')
+#     patient.allergies = request_data.get('allergies')
+#     patient.street = request_data.get('street')
+#     patient.city = request_data.get('city')
+#     patient.save()
+#     return redirect('patients')
+#   return render(request, 'pages/patients/edit.html', {"patient":patient, "genders": Patient.get_genders()})
 
-def edit_doctor(request, id):
-  doctor = Doctor.objects.get(pk=id)
-  if request.method=='POST':
-    request_data = request.POST
-    user = get_user_model().objects.get(pk=doctor.user.id)
-    user.first_name = request_data.get('first_name')
-    user.last_name = request_data.get('last_name')
-    user.email = request_data.get('email')
-    user.save()
-    doctor.phone = request_data.get('phone')
-    doctor.department = request_data.get('department')
-    doctor.postal_code = request_data.get('postal_code')
-    doctor.street = request_data.get('street')
-    doctor.city = request_data.get('city')
-    doctor.user = user
-    doctor.save()
-    return redirect('doctors')
-  return render(request, 'pages/doctors/edit.html', {"doctor":doctor})
-  
-@login_required
-def delete_patient(request, id):
-  Patient.objects.get(pk=id).delete()
-  return redirect('patients')
+# def edit_doctor(request, id):
+#   doctor = Doctor.objects.get(pk=id)
+#   if request.method=='POST':
+#     request_data = request.POST
+#     user = get_user_model().objects.get(pk=doctor.user.id)
+#     user.first_name = request_data.get('first_name')
+#     user.last_name = request_data.get('last_name')
+#     user.email = request_data.get('email')
+#     user.save()
+#     doctor.phone = request_data.get('phone')
+#     doctor.department = request_data.get('department')
+#     doctor.postal_code = request_data.get('postal_code')
+#     doctor.street = request_data.get('street')
+#     doctor.city = request_data.get('city')
+#     doctor.user = user
+#     doctor.save()
+#     return redirect('doctors')
+#   return render(request, 'pages/doctors/edit.html', {"doctor":doctor})
 
-@login_required
-def view_patient(request, id):
-  patient = Patient.objects.get(pk=id)
-  allergies = patient.allergies.split(",")
-  appointments = patient.appointment_set.all()
-  medications = Medication.objects.filter(appointment__patient=patient)
-  return render(request, 'pages/patients/view.html', {
-    "patient": patient, 
-    "allergies":allergies,
-    "medications":medications
-    })
-
-def view_appointment(request, id):
-  appointment = Appointment.objects.get(pk=id)
-  if request.method=='POST':
-    appointment.illness = request.POST.get('illness')
-    appointment.symptoms = request.POST.get('symptoms')
-    appointment.notes = request.POST.get('notes')
-    appointment.patient_type = request.POST.get('patient_type')
-    appointment.save()
-  
-  active_medication = Medication.objects.filter(appointment__patient=appointment.patient, end__gt=date.today())
-  return render(request, 'pages/appointments/view.html', {
-    "appointment": appointment,
-    "medications":active_medication
-    })
+# # DELETE
+# @login_required
+# @require_http_methods(["POST", "GET"])
+# def view_patient_appointment(request, id, aid):
+#   if request.method=='POST':
+#     logger.debug("JANE")
+#     appointment = Appointment.objects.get(pk=aid)
+#     appointment.illness = request.POST.get('illness')
+#     appointment.symptoms = request.POST.get('symptoms')
+#     appointment.notes = request.POST.get('notes')
+#     appointment.patient_type = request.POST.get('patient_type')
+#     appointment.save()
+#     return redirect('appointments_dashboard')
+#   patient = Patient.objects.get(pk=id)
+#   allergies = patient.allergies.split(",")
+#   appointment = patient.appointment_set.get(pk=aid)
+#   medications = Medication.objects.filter(appointment__patient=patient)
+#   return render(request, 'pages/appointments/view.html', {
+#     "patient": patient, 
+#     "appointment": appointment,
+#     "allergies":allergies,
+#     "medications":medications
+#     })
 
 # DELETE
-@login_required
-@require_http_methods(["POST", "GET"])
-def view_patient_appointment(request, id, aid):
-  if request.method=='POST':
-    logger.debug("JANE")
-    appointment = Appointment.objects.get(pk=aid)
-    appointment.illness = request.POST.get('illness')
-    appointment.symptoms = request.POST.get('symptoms')
-    appointment.notes = request.POST.get('notes')
-    appointment.patient_type = request.POST.get('patient_type')
-    appointment.save()
-    return redirect('appointments_dashboard')
-  patient = Patient.objects.get(pk=id)
-  allergies = patient.allergies.split(",")
-  appointment = patient.appointment_set.get(pk=aid)
-  medications = Medication.objects.filter(appointment__patient=patient)
-  return render(request, 'pages/appointments/view.html', {
-    "patient": patient, 
-    "appointment": appointment,
-    "allergies":allergies,
-    "medications":medications
-    })
-
-# DELETE
-@login_required
-@require_http_methods(["POST"])
-def create_patient_consultation(request, id):
-  try:
-    success = True
-    patient = Patient.objects.get(pk=id)
-    doctor = Doctor.objects.get(user=request.user)
-    data = json.loads(request.body)
-    appointment = Appointment(
-      doctor=doctor,
-      patient=patient,
-      datetime=datetime.now(),
-      **data
-    )
-    appointment.save()
-  except Exception as e:
-    success = False
-  return JsonResponse({'success':success})
+# @login_required
+# @require_http_methods(["POST"])
+# def create_patient_consultation(request, id):
+#   try:
+#     success = True
+#     patient = Patient.objects.get(pk=id)
+#     doctor = Doctor.objects.get(user=request.user)
+#     data = json.loads(request.body)
+#     appointment = Appointment(
+#       doctor=doctor,
+#       patient=patient,
+#       datetime=datetime.now(),
+#       **data
+#     )
+#     appointment.save()
+#   except Exception as e:
+#     success = False
+#   return JsonResponse({'success':success})
 
 
-def create_medication(request, id):
-  try:
-    success=True
-    appointment = Appointment.objects.get(pk=id)
-    data = json.loads(request.body)
-    medication = Medication(
-      appointment=appointment,
-      **data
-    )
-    medication.save()
-  except Exception as e:
-    success = False
-  return JsonResponse({'success':success})
+# # DELETE
+# @login_required
+# def create_patient_consultation_medication(request, pid, cid):
+#   try:
+#     success=True
+#     Appointment = Appointment.objects.get(pk=cid)
+#     data = json.loads(request.body)
+#     medication = Medication(
+#       Appointment=Appointment,
+#       datetime=datetime.now(),
+#       **data
+#     )
+#     medication.save()
+#   except Exception as e:
+#     success = False
+#     return {'e':e}
+#   return JsonResponse({'success':success})
 
-# DELETE
-@login_required
-def create_patient_consultation_medication(request, pid, cid):
-  try:
-    success=True
-    Appointment = Appointment.objects.get(pk=cid)
-    data = json.loads(request.body)
-    medication = Medication(
-      Appointment=Appointment,
-      datetime=datetime.now(),
-      **data
-    )
-    medication.save()
-  except Exception as e:
-    success = False
-    return {'e':e}
-  return JsonResponse({'success':success})
+#  # Appointments
 
- # Appointments
-
-@login_required
-def delete_doctor(request, id):
-  Doctor.objects.get(pk=id).delete()
-  return redirect('doctors')
-
-@login_required
-def view_doctor(request, id):
-  staff = Doctor.objects.get(pk=id)
-  return render(request, 'pages/doctors/view.html', {"staff": staff})
+# @login_required
+# def view_doctor(request, id):
+#   staff = Doctor.objects.get(pk=id)
+#   return render(request, 'pages/doctors/view.html', {"staff": staff})

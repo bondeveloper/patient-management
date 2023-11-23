@@ -3,29 +3,13 @@
 <div class="container">
   <div class="row gx-5" style="margin-bottom: 50px;">
     <div class="col-5">
-      <div class="p-1">
+      <div class="p-1" style="margin-bottom: 50px;">
         <h4 class="text-capitalize">{{appointment.patient}}</h4>
         <a href="{% url 'view_patient' appointment.patient.id %}" class="btn btn-outline-dark">view profile</a>
       </div>
       <form method="post">
           {% csrf_token %}
-          <div class="mb-3">
-            <label for="patient_type" class="col-form-label">Patient Type</label>
-            <input type="text" class="form-control" id="patient_type" name="patient_type" value="{{appointment.patient_type}}">
-          </div>
-          <div class="mb-3">
-            <label for="symptoms" class="col-form-label">Symptoms</label>
-            <input type="text" class="form-control" id="symptoms" name="symptoms" value="{{appointment.symptoms}}">
-          </div>
-          <div class="mb-3">
-            <label for="illness" class="col-form-label">Illness</label>
-            <input type="text" class="form-control" id="illness" name="illness" value="{{appointment.illness}}">
-          </div>
-          <div class="mb-3">
-            <label for="notes" class="col-form-label">Notes</label>
-            <textarea class="form-control" id="notes" name="notes" rows="5" value="123">{{appointment.notes}}</textarea>
-          </div>
-
+          {{ form.as_p }}
         <div class="mb-2">
           <button type="submit" class="btn btn-dark">Save</button>
         </div>

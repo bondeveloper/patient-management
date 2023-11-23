@@ -63,6 +63,9 @@
 </body>
 <script>
   // In your Javascript (external .js resource or <script> tag)
+  document.getElementById('clear').onclick = () => {
+    document.getElementById('q').value = '';
+  }
 
 new DataTable('.datatable');
 function postData(url, data) {
