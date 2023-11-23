@@ -56,12 +56,7 @@ python manage.py test && flake8
 ```
 
 ### Views (Images)
-TODO
-#### Login
-#### Appointments
-#### Patients
-#### Doctors
-#### Logout
+See [Example Views](https://drive.google.com/drive/folders/1R5uwr9vbuXterEGMvknyUjg603R7UVvA?usp=drive_link)
 
 ### Future work
 With enough time, I need to add proper messages for actions done.
