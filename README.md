@@ -38,9 +38,8 @@ python manage.py user-fixture
 
 
 #### Step 3
-Log into admin and create a group called doctor with all doctor, appointment, patient permissions
+Log into admin and create a group called doctor with all doctor, appointment, patient permissions which is needed for when creating a doctor
 
-Colons can be used to align columns.
 
 | email          | password | role  |
 | -------------- |:--------:| -----:|
