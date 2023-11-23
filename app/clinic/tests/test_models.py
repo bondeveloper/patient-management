@@ -1,13 +1,10 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.contrib.auth import get_user_model
 from clinic.models import Appointment, Patient, Doctor
-from django.urls import reverse
-import json
 
 
-class AppointmentTests(TestCase):
+class ModelTests(TestCase):
   def setUp(self) -> None:
-    self.client = Client()
     self.patient = Patient(
       first_name='jane',
       last_name='doe' ,
@@ -35,7 +32,6 @@ class AppointmentTests(TestCase):
       department='neuro-surgery'
     )
     self.doctor.save()
-    self.client.force_login(self.user)
 
     self.appointment = Appointment(
       patient=self.patient,
@@ -62,17 +58,28 @@ class AppointmentTests(TestCase):
     self.appointment.delete()
     self.assertTrue(len(Appointment.objects.all()) == 0)
 
-  def test_making_appointment(self):
-    url = reverse('doctor_appointments_create')
-    payload = {
-      "id_patient": self.patient.id,
-      "symptoms":'headache, fever, vomiting',
-      "illness":'food poisoning',
-      "notes":'went abroad for holidays and suspect might have had bed food.',
-      "patient_type":'out patient',
-      "date": '2023-11-22',
-      "time": '12:00'
-    }
-    res = self.client.post(url, json.dumps(payload), content_type="application/json")
-    self.assertTrue(res.json().get('success'))
+  def test_doctor_created(self):
+    doctor = Doctor.objects.get(pk=self.doctor.id)
+    self.assertEquals(doctor.department, 'neuro-surgery')
 
+  def test_doctor_updated(self):
+    self.assertEquals(self.doctor.department, 'neuro-surgery')
+    self.doctor.department = 'general-surgery'
+    self.doctor.save()
+    self.assertEquals(self.doctor.department, 'general-surgery')
+
+  def test_doctor_deleted(self):
+    self.assertTrue(len(Doctor.objects.all()) == 1)
+    self.doctor.delete()
+    self.assertTrue(len(Doctor.objects.all()) == 0)
+
+  def test_patient_updated(self):
+    self.assertEquals(self.patient.first_name, 'jane')
+    self.patient.first_name = 'janet'
+    self.patient.save(update_fields=['first_name'])
+
+    self.assertEquals(self.patient.first_name, 'janet')
+
+  def test_patient_deleted(self):
+    self.patient.delete()
+    self.assertTrue(len(Patient.objects.all()) == 0)

@@ -7,24 +7,24 @@
       <div class="collapse navbar-collapse" id="clinicnavbar">
         <ul class="navbar-nav ms-auto">
           {% if request.user.is_authenticated %}
-          {% if perms.appointment.view_appointment %}
-          <li class="nav-item">
-            <a class="nav-link {%if 'appointments' in request.path %} active {% endif %}" href="{% url 'appointments_dashboard' %}">appointments</a>
-          </li>
-          {% endif %}
-          {% if perms.patient.view_patient %}
-          <li class="nav-item">
-            <a class="nav-link {%if 'patients' in request.path %} active {% endif %}" href="{% url 'patients' %}">patients</a>
-          </li>
-          {% endif %}
-          {% if perms.doctor.view_doctor %}
+            {% if perms.clinic.view_appointment %}
             <li class="nav-item">
-              <a class="nav-link {%if 'doctors' in request.path %} active {% endif %}" href="{% url 'doctors' %}">doctors</a>
+              <a class="nav-link {%if 'appointments' in request.path %} active {% endif %}" href="{% url 'appointments_dashboard' %}">appointments</a>
             </li>
-          {% endif %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'signout' %}">logout</a>
-          </li>
+            {% endif %}
+            {% if perms.clinic.view_patient %}
+            <li class="nav-item">
+              <a class="nav-link {%if 'patients' in request.path %} active {% endif %}" href="{% url 'patients' %}">patients</a>
+            </li>
+            {% endif %}
+            {% if perms.clinic.view_doctor %}
+              <li class="nav-item">
+                <a class="nav-link {%if 'doctors' in request.path %} active {% endif %}" href="{% url 'doctors' %}">doctors</a>
+              </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'signout' %}">logout</a>
+            </li>
           {% endif %}
         </ul>
       </div>

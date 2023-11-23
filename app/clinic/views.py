@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.views import redirect_to_login
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.http import require_http_methods
 from django.views import View
@@ -13,6 +14,9 @@ from datetime import datetime, date
 import logging
 import json
 from django.template.response import TemplateResponse
+from django.core import serializers
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
 
 from clinic.models import Doctor, Patient, Appointment, Medication
 from .forms import AppointmentCreationForm, CreateDoctorModelForm, UpdateDoctorModelForm, CreatePatientModelForm
@@ -20,20 +24,43 @@ from .forms import AppointmentCreationForm, CreateDoctorModelForm, UpdateDoctorM
 logger = logging.getLogger(__name__)
 
 
-class CreateDoctorView(CreateView):
+class UserAccessMixin(PermissionRequiredMixin):
+  def dispatch(self, request, *args, **kwargs):
+    if (not self.request.user.is_authenticated):
+      return redirect_to_login(self.request.get_full_path(), self.get_login_url(), self.get_redirect_field_name())
+    
+    if not self.has_permission():
+      return redirect('/') 
+    return super(UserAccessMixin, self).dispatch(request, *args, **kwargs)
+
+class CreateDoctorView(UserAccessMixin, CreateView):
+
+  permission_required = 'clinic.add_doctor'
+
   model = Doctor
   form_class = CreateDoctorModelForm
   template_name = 'pages/doctors/create.html'
   success_url = '/doctors/'
 
-class UpdateDoctorView(UpdateView):
+
+class UpdateDoctorView(UserAccessMixin, UpdateView):
+
+  permission_required = 'clinic.change_doctor'
+
   model = Doctor
   exclude = ('user',)
   form_class = UpdateDoctorModelForm
   template_name = 'pages/doctors/create.html'
   success_url = '/doctors/'
 
-class ListDoctorView(ListView):
+
+class ListDoctorView(UserAccessMixin, ListView):
+
+  raise_exception = False
+  permission_required = 'clinic.view_doctor'
+  permission_denied_message = ""
+  login_url = '/signin/'
+  
   model = Doctor
   template_name = 'pages/doctors/list.html'
 
@@ -41,33 +68,145 @@ class ListDoctorView(ListView):
     q = self.request.GET.get('q', False)
     object_list = self.model.objects.all()
     if q:
-        object_list = object_list.filter(department__icontains=q)
+        object_list = object_list.filter(
+          Q(department__icontains=q)
+          | Q(user__first_name__icontains=q)
+          | Q(user__last_name__icontains=q)
+          | Q(user__email__icontains=q)
+          | Q(phone__icontains=q)
+        )
     return object_list
 
 
 def get_users(request):
-  if is_ajax(request=request):
-    term = request.GET.get('term')
-    patients = get_user_model().objects.filter(
-      Q(first_name__icontains=term) |
-      Q(last_name__icontains=term) |
-      Q(email__icontains=term)
+  q = request.GET.get('q')
+  users = get_user_model().objects.all()
+  if q:
+    users = users.filter(
+      Q(first_name__icontains=q) |
+      Q(last_name__icontains=q) |
+      Q(email__icontains=q)
     )
-    users_response = list(patients.values())
-    return JsonResponse(users_response, safe=False)
+  users_response = list(users.values())
+  return JsonResponse(users_response, safe=False)
 
-class CreatePatientView(CreateView):
+def get_doctors(request):
+  q = request.GET.get('q', False)
+  object_list = Doctor.objects.all()
+  if q:
+    object_list = object_list.filter(
+      Q(phone__icontains=q) |
+      Q(user__first_name__icontains=q) |
+      Q(user__last_name__icontains=q) |
+      Q(user__email__icontains=q)
+    )
+  
+  data = [obj.get_doctor_user_data() for obj in object_list]
+  return JsonResponse(data, safe=False)
+
+class CreatePatientView(UserAccessMixin, CreateView):
+    
+    permission_required = 'clinic.add_patient'
+
+  
     model = Patient
     form_class = CreatePatientModelForm
     template_name = 'pages/patients/create.html'
     success_url = '/patients/'
 
 
-class UpdatePatientView(UpdateView):
+class UpdatePatientView(UserAccessMixin, UpdateView):
+    
+    permission_required = 'clinic.change_patient'
+
     model = Patient
     form_class = CreatePatientModelForm
     template_name = 'pages/patients/create.html'
     success_url = '/patients/'
+
+
+class ListPatientView(UserAccessMixin, ListView):
+
+  raise_exception = False
+  permission_required = 'clinic.view_patient'
+  permission_denied_message = ""
+  login_url = '/signin/'
+
+  model = Patient
+  template_name = 'pages/patients/list.html'
+
+  def get_queryset(self):
+    q = self.request.GET.get('q', False)
+    object_list = self.model.objects.all()
+    if q:
+        object_list = object_list.filter(
+          Q(first_name__icontains=q)
+          | Q(last_name__icontains=q)
+          | Q(email__icontains=q)
+          | Q(date_of_birth__icontains=q)
+          | Q(phone__icontains=q)
+        )
+    return object_list
+
+
+def get_patients(request):
+  if is_ajax(request=request):
+    q = request.GET.get('q')
+    patients = Patient.objects.filter(
+      Q(first_name__icontains=q) |
+      Q(last_name__icontains=q) |
+      Q(email__icontains=q)
+    )
+    patient_response = list(patients.values())
+    return JsonResponse(patient_response, safe=False)
+  
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
+class ListAppointmentView(UserAccessMixin, ListView):
+
+  permission_required = 'clinic.view_appointment'
+
+  model = Appointment
+  template_name = 'pages/appointments/list.html'
+
+
+def create_appointment(request):
+  try:
+    success = True
+    data = json.loads(request.body)
+    doctor = Doctor.objects.get(id=data.get('id_doctor'))
+    patient = Patient.objects.get(pk=data.get('id_patient'))
+    appointment = Appointment(
+      doctor=doctor,
+      patient=patient,
+      date=data.get('date'),
+      time=data.get('time'),
+    )
+    appointment.save()
+  except Exception as e:
+    success = False
+    logger.error(e)
+  return JsonResponse({'success':success})
+# @login_required
+# @permission_required('appointment.view_appointment')
+# @require_http_methods(["GET"])
+# def appointments_dashboard(request):
+#   form = AppointmentCreationForm()
+#   filter_date = ''
+#   request_data = request.GET
+#   if 'date' in request_data:
+#     filter_date = request_data.get('date')
+#   appointments = Appointment.objects.filter(
+#     Q(date__icontains=filter_date)
+#   )
+#   response_data = {
+#     "form": form,
+#     "appointments": appointments,
+#     "filter_date":filter_date
+#   }
+#   return render(request, 'pages/appointments/dashboard.html', response_data)
 
 
 @login_required
@@ -93,62 +232,12 @@ def signout(request):
   logout(request)
   return redirect('signin')
 
-@login_required
-@permission_required('appointment.view_appointment')
-@require_http_methods(["GET"])
-def appointments_dashboard(request):
-  form = AppointmentCreationForm()
-  filter_date = ''
-  request_data = request.GET
-  if 'date' in request_data:
-    filter_date = request_data.get('date')
-  appointments = Appointment.objects.filter(
-    Q(date__icontains=filter_date)
-  )
-  response_data = {
-    "form": form,
-    "appointments": appointments,
-    "filter_date":filter_date
-  }
-  return render(request, 'pages/appointments/dashboard.html', response_data)
-
 
 def delete_appointment(request, id):
   appointment = Appointment.objects.get(pk=id)
   appointment.delete()
   return JsonResponse({"success": True})
 
-
-def get_patients(request):
-  if is_ajax(request=request):
-    term = request.GET.get('term')
-    patients = Patient.objects.filter(
-      Q(first_name__icontains=term) |
-      Q(last_name__icontains=term) |
-      Q(email__icontains=term)
-    )
-    patient_response = list(patients.values())
-    return JsonResponse(patient_response, safe=False)
-  
-def is_ajax(request):
-    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-
-@login_required
-def list_patients(request):
-  request_data = request.GET
-  filter = ''
-  if 'q' in request_data:
-    filter = request_data.get('q')
-    patients = Patient.objects.filter(
-      Q(first_name__icontains=filter)
-      | Q(last_name__icontains=filter)
-      | Q(email__icontains=filter)
-      | Q(date_of_birth__icontains=filter)
-      | Q(phone__icontains=filter)
-    )
-  else:
-    patients = Patient.objects.all()
-  return render(request, 'pages/patients/list.html', {"patients": patients, "filter":filter})
 
 @login_required
 @permission_required('doctor.view_doctor')
@@ -361,25 +450,6 @@ def create_patient_consultation_medication(request, pid, cid):
   return JsonResponse({'success':success})
 
  # Appointments
-
-@login_required
-def doctor_appointments_create(request):
-  try:
-    success = True
-    doctor = Doctor.objects.get(user=request.user)
-    data = json.loads(request.body)
-    patient = Patient.objects.get(pk=data.get('id_patient'))
-    appointment = Appointment(
-      doctor=doctor,
-      patient=patient,
-      date=data.get('date'),
-      time=data.get('time'),
-    )
-    appointment.save()
-  except Exception as e:
-    success = False
-    logger.error(e.args[0])
-  return JsonResponse({'success':success})
 
 @login_required
 def delete_doctor(request, id):

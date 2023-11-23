@@ -4,17 +4,17 @@ from django.db.utils import IntegrityError
 
 class UserModelTests(TestCase):
   def setUp(self):
-    self.user = get_user_model().objects.create_user(email='user@patient.com', password='123123')
+    self.user = get_user_model().objects.create_user(email='user1@patient.com', password='123123')
 
   def test_user_created_using_email(self):
-    self.assertEqual(self.user.email, 'user@patient.com')
+    self.assertEqual(self.user.email, 'user1@patient.com')
   
   def test_admin_user_created(self):
     user = get_user_model().objects.create_superuser(email='admin@patient.com', password='123123')
     self.assertEqual(user.email, 'admin@patient.com')
 
   def test_user_created_existing_email_fails(self):
-    self.assertRaises(IntegrityError, get_user_model().objects.create_user, email='user@patient.com')
+    self.assertRaises(IntegrityError, get_user_model().objects.create_user, email='user1@patient.com')
 
   def test_user_updated(self):
     self.assertEquals(self.user.first_name, '')

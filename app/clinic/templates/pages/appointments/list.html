@@ -41,7 +41,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for appointment in appointments %}
+          {% for appointment in object_list %}
           <tr>
             <td>{{ appointment.date|date:"Y-m-d" }}</td>
             <td>{{ appointment.time|time:"H:i" }}</td>
@@ -68,23 +68,33 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="create-appointment">
+        <form id="create-appointment" method="post">
+          {% csrf_token %}
           <div class="mb-3">
-            <label for="patient_type" class="col-form-label">Patient</label>
+            <label for="id_patient" class="col-form-label">Patient</label>
             <select class="form-select" id="id_patient" name="id_patient">
               <option value="" disabled selected>-</option>
               {% for key, value in types %}
               <option value="{{ key }}">{{ value}}</option>
               {% endfor %}
             </select>
-            <div class="mb-3">
-              <label for="date" class="col-form-label">Date</label>
-              <input type="date" class="form-control" id="date" name="date">
-            </div>
-            <div class="mb-3">
-              <label for="time" class="col-form-label">Time</label>
-              <input type="time" class="form-control" id="time" name="time">
-            </div>
+          </div>
+          <div class="mb-3">
+            <label for="id_doctor" class="col-form-label">Doctor</label>
+            <select class="form-select" id="id_doctor" name="id_doctor">
+              <option value="" disabled selected>-</option>
+              {% for key, value in types %}
+              <option value="{{ key }}">{{ value}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="date" class="col-form-label">Date</label>
+            <input type="date" class="form-control" id="date" name="date">
+          </div>
+          <div class="mb-3">
+            <label for="time" class="col-form-label">Time</label>
+            <input type="time" class="form-control" id="time" name="time">
           </div>
         </form>
       </div>
@@ -111,12 +121,27 @@
           }
         }
       });
+      $('#id_doctor').select2({
+        dropdownParent: $('#createAppointmentModal'),
+        ajax: {
+          url: "{% url 'get_doctors' %}",
+          dataType: 'json',
+          processResults: function(data) {
+            return {
+              results: $.map(data, function(item) {
+                return {id: item.id, text: item.first_name +" "+item.last_name}
+              })
+            }
+          }
+        }
+      });
     });
 
     document.getElementById('save-appointment').onclick = () => {
       const data =  Object.fromEntries(new FormData(document.getElementById('create-appointment')))
-      postData("{% url 'doctor_appointments_create' %}", data).then((data) => {
-        location.reload();
+      postData("{% url 'create_appointment' %}", data).then((data) => {
+        // location.reload();
+        console.log(data)
       });
     };
 

@@ -46,15 +46,22 @@ class Doctor(models.Model):
   def __str__(self) -> str:
      return f"{self.user.first_name} {self.user.last_name}"
   
+  def get_doctor_user_data(self):
+    return {
+    'id': self.id,
+    'first_name': self.user.first_name,
+    'last_name': self.user.last_name,
+  }
+  
 
 class Appointment(models.Model):
   patient = models.ForeignKey(
     Patient,
-    on_delete=models.DO_NOTHING
+    on_delete=models.CASCADE
   )
   doctor = models.ForeignKey(
     Doctor,
-    on_delete=models.DO_NOTHING
+    on_delete=models.CASCADE
   )
   symptoms = models.CharField(max_length=40)
   illness = models.CharField(max_length=255)

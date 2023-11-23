@@ -9,6 +9,10 @@ class PatientAdmin(admin.ModelAdmin):
 @admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
   list_display = ('user', 'phone', 'department')
+
+@admin.register(Appointment)
+class AppointmentAdmin(admin.ModelAdmin):
+  list_display = ('patient', 'date', 'time')
 # Register your models here.
 # admin.site.register(Patient, PatientAdmin)
 # admin.site.register(Doctor)

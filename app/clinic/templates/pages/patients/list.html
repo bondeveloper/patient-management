@@ -15,7 +15,7 @@
     </div>
   </div>
   <div class="col">
-    <a class="btn btn-outline-dark btn-sm" href="{% url 'create_patient' %}" style="margin-bottom:50px;">add</a>
+    <a class="btn btn-dark btn-sm" href="{% url 'create_patient' %}" style="margin-bottom:50px;">add</a>
   </div>
   <div class="row gx-5">
     <table class="datatable table table-striped">
@@ -30,7 +30,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for patient in patients %}
+        {% for patient in object_list %}
         <tr>
           <td>{{ patient.first_name }} {{ patient.last_name }}</td>
           <td>{{ patient.date_of_birth|date:"Y-m-d" }}</td>
