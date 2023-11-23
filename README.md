@@ -50,7 +50,7 @@ Log into admin and create a group called doctor with all doctor, appointment, pa
 | alex@123.com   | 123123   | user  |
 
 
-### Tests and pep8
+### Tests and Linting check
 ```bash
 python manage.py test && flake8
 ```
