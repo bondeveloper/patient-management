@@ -1,7 +1,7 @@
 # patient-management
 A django system for managing patient data
 
-## Local set
+## Local setup
 ### Docker
 You need to have docker desktop running. This application will not run on an M1 machine. I tried!
 
