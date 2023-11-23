@@ -1,0 +1,80 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="row gx-5" style="margin-bottom: 50px;">
+    <div class="col-7">
+      <div class="p-1">
+        <div class="col">
+          <h4 class="text-capitalize">{{patient}}</h4>
+          <a class="btn btn-outline-dark btn-sm" href="{% url 'edit_patient' patient.id %}" style="margin-bottom:50px;">edit</a>
+        </div>
+        <table class="table">
+          <tbody>
+            <tr>
+              <th scope="row">birth date</th>
+              <td>{{ patient.date_of_birth}}</td>
+            </tr>
+            <tr>
+              <th scope="row">email</th>
+              <td>{{ patient.email}}</td>
+            </tr>
+            <tr>
+              <th scope="row">phone</th>
+              <td>{{ patient.phone}}</td>
+            </tr>
+            <tr>
+              <th scope="row">gender</th>
+              <td>{{ patient.gender}}</td>
+            </tr>
+            <tr>
+              <th scope="row">occupation</th>
+              <td>{{ patient.occupation}}</td>
+            </tr>
+            <tr>
+              <th scope="row">address</th>
+              <td>{{ patient.street}},  {{ patient.city}},  {{ patient.postal_code}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-2">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Allergies</h5>
+          {% for allergy in allergies %}
+            <span class="badge rounded-pill bg-dark">{{ allergy }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row gx-5">
+    <div class="col">
+      <h5>Medication</h5>
+      <table class="datatable table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Dosage</th>
+            <th scope="col">Frequency</th>
+            <th scope="col">Start date</th>
+            <th scope="col">End date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for medication in medications %}
+          <tr>
+            <td>{{ medication.name }}</td>
+            <td>{{ medication.dosage }}</td>
+            <td>{{ medication.frequency }}</td>
+            <td>{{ medication.start|date:"Y-m-d" }}</td>
+            <td>{{ medication.end|date:"Y-m-d" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

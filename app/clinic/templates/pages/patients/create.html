@@ -1,0 +1,22 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+	<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+		<h1 class="display-4">{% if object %}Update{% else %}Create{% endif %} Patient</h1>
+	</div>
+	<div class="row justify-content-md-center">
+		<div class="col-4">
+			<form method="post">
+				{% csrf_token %}
+				<div class="row">
+				{{ form.as_p }}
+				<div class="mb-2">
+					<button type="submit" class="btn btn-dark">Submit</button>
+				</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

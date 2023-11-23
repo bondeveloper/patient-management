@@ -1,0 +1,52 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+		<h1 class="display-4">All Doctors</h1>
+		{% if not object %}<p class="lead">A doctor can only be created from existing staff users.</p>{% endif %}
+	</div>
+  <div class="row gx-5" style="margin-bottom: 50px;">
+    <div class="col-4">
+      <form class="row g-3">
+        <div class="col-auto">
+          <input type="text" class="form-control" id="q" name="q" value="{{filter}}" placeholder="name, phone, department">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-dark mb-3">search</button>
+          <button class="btn btn-outline-dark mb-3" id="clear">clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col">
+    <a class="btn btn-dark btn-sm" href="{% url 'create_doctor' %}" style="margin-bottom:50px;">add</a>
+  </div>
+  <div class="row gx-5" style="margin-bottom: 50px;">
+    <table class="datatable table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Full Name</th>
+          <th scope="col">Department</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Address</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doctor in object_list %}
+        <tr>
+          <td>{{ doctor.user.first_name }} {{ doctor.user.last_name }}</td>
+          <td>{{ doctor.department }}</td>
+          <td>{{ doctor.phone }}</td>
+          <td>{{ doctor.street }} {{ doctor.city }} {{ doctor.postal_code }}</td>
+          <td>
+            <a class="btn btn-outline-dark btn-sm" href="{% url 'edit_doctor' doctor.id %}">edit</a>
+            <a class="btn btn-outline-danger btn-sm" href="{% url 'delete_doctor' doctor.id %}" onclick="return confirm('you sure?')">delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

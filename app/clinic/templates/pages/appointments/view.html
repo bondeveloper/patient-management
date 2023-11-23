@@ -1,0 +1,118 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="row gx-5" style="margin-bottom: 50px;">
+    <div class="col-5">
+      <div class="p-1" style="margin-bottom: 50px;">
+        <h4 class="text-capitalize">{{appointment.patient}}</h4>
+        <a href="{% url 'view_patient' appointment.patient.id %}" class="btn btn-outline-dark">view profile</a>
+      </div>
+      <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+        <div class="mb-2">
+          <button type="submit" class="btn btn-dark">Save</button>
+        </div>
+      </form>
+    </div>
+    <div class="col-7">
+      <div class="col" style="margin: 50px 0;">
+        <a href="{% url 'view_patient' appointment.patient.id %}" class="btn btn-outline-dark">medical history</a>
+      </div>
+      <div class="col" style="margin: 50px 0;">
+        <h5>Active Medications</h5>
+        <a type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#createMedicationModal">add</a>
+      </div>
+      <div class="col">
+        <table class="datatable table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Dosage</th>
+              <th scope="col">Frequency</th>
+              <th scope="col">Start date</th>
+              <th scope="col">End date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for medication in medications %}
+            <tr>
+              <td>{{ medication.name }}</td>
+              <td>{{ medication.dosage }}</td>
+              <td>{{ medication.frequency }}</td>
+              <td>{{ medication.start|date:"Y-m-d" }}</td>
+              <td>{{ medication.end|date:"Y-m-d" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="createMedicationModal" tabindex="-1" aria-labelledby="createMedicationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createMedicationModal">Medication</h5>
+      </div>
+      <div class="modal-body">
+        <form id="create-medication" data-medication-url="">
+          <div class="mb-3">
+            <label for="name" class="col-form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name"/>
+          </div>
+          <div class="mb-3">
+            <label for="dosage" class="col-form-label">Dosage</label>
+            <input class="form-control" id="dosage" name="dosage"/>
+          </div>
+          <div class="mb-3">
+            <label for="frequency" class="col-form-label">Frequency</label>
+            <input class="form-control" id="frequency" name="frequency"/>
+          </div>
+          <div class="mb-3">
+            <label for="start" class="col-form-label">Start</label>
+            <input type="date" class="form-control" id="start" name="start"/>
+          </div>
+          <div class="mb-3">
+            <label for="end" class="col-form-label">End</label>
+            <input type="date" class="form-control" id="end" name="end"/>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" id="save-medication">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('createMedicationModal').addEventListener('show.bs.modal', function (event) {
+    const url = event.relatedTarget.getAttribute('data-bs-medicationurl');
+    document.getElementById('create-medication').setAttribute('data-medication-url', url)
+  });
+  document.getElementById('save-medication').onclick = () => {
+    const form = document.getElementById('create-medication');
+    const url = "{% url 'create_medication' appointment.id %}";
+    const data = Object.fromEntries(new FormData(form))
+
+    postData(url, data, "POST").then((data) => {
+      location.reload();
+    });
+  };
+
+  function postData(url, data) {
+    const response = fetch(url, {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  }
+</script>
+{% endblock %}

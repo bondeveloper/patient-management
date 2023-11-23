@@ -1,0 +1,132 @@
+[
+  {
+    "model": "accounts.user",
+    "pk": 1,
+    "fields": {
+        "email": "john@123.com",
+        "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+        "first_name": "John",
+        "last_name": "Doe",
+        "is_superuser": true,
+        "is_staff": true,
+        "is_active": true
+    }
+  },
+  {
+      "model": "accounts.user",
+      "pk": 2,
+      "fields": {
+          "email": "jane@123.com",
+          "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+          "first_name": "Jane",
+          "last_name": "Smith",
+          "is_superuser": false,
+          "is_staff": true,
+          "is_active": true
+      }
+  },
+  {
+      "model": "accounts.user",
+      "pk": 3,
+      "fields": {
+          "email": "alex@123.com",
+          "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+          "first_name": "Alex",
+          "last_name": "Johnson",
+          "is_superuser": false,
+          "is_staff": false,
+          "is_active": true
+      }
+  },
+  {
+      "model": "accounts.user",
+      "pk": 4,
+      "fields": {
+          "email": "emily@123.com",
+          "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+          "first_name": "Emily",
+          "last_name": "Brown",
+          "is_superuser": false,
+          "is_staff": false,
+          "is_active": true
+      }
+  },
+  {
+      "model": "accounts.user",
+      "pk": 5,
+      "fields": {
+          "email": "michael@123.com",
+          "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+          "first_name": "Michael",
+          "last_name": "Taylor",
+          "is_superuser": false,
+          "is_staff": false,
+          "is_active": true
+      }
+  },
+  {
+      "model": "accounts.user",
+      "pk": 6,
+      "fields": {
+          "email": "olivia@123.com",
+          "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+          "first_name": "Olivia",
+          "last_name": "Jones",
+          "is_superuser": false,
+          "is_staff": false,
+          "is_active": true
+      }
+  },
+  {
+      "model": "accounts.user",
+      "pk": 7,
+      "fields": {
+          "email": "ethan@123.com",
+          "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+          "first_name": "Ethan",
+          "last_name": "Clark",
+          "is_superuser": false,
+          "is_staff": false,
+          "is_active": true
+      }
+  },
+  {
+      "model": "accounts.user",
+      "pk": 8,
+      "fields": {
+          "email": "ava@123.com",
+          "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+          "first_name": "Ava",
+          "last_name": "Miller",
+          "is_superuser": false,
+          "is_staff": false,
+          "is_active": true
+      }
+  },
+  {
+      "model": "accounts.user",
+      "pk": 9,
+      "fields": {
+          "email": "daniel@123.com",
+          "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+          "first_name": "Daniel",
+          "last_name": "Ward",
+          "is_superuser": false,
+          "is_staff": false,
+          "is_active": true
+      }
+  },
+  {
+      "model": "accounts.user",
+      "pk": 10,
+      "fields": {
+          "email": "sophia@123.com",
+          "password": "pbkdf2_sha256$600000$nrZMLTqN4koToBgtpScplg$t7eXu6W/XMPzbBbA+XTCB1inKIj0ncfO31HA3y+/lxw=",
+          "first_name": "Sophia",
+          "last_name": "Baker",
+          "is_superuser": false,
+          "is_staff": false,
+          "is_active": true
+      }
+  }
+]

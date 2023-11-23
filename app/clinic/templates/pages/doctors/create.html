@@ -1,0 +1,40 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+	<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+		<h1 class="display-4">{% if object %}Update{% else %}Create{% endif %} Doctor</h1>
+		{% if not object %}<p class="lead">A doctor can only be created from existing staff users.</p>{% endif %}
+	</div>
+	<div class="row justify-content-md-center">
+		<div class="col-4">
+			<form method="post">
+				{% csrf_token %}
+				<div class="row">
+				{{ form.as_p }}
+				<div class="mb-2">
+					<button type="submit" class="btn btn-dark">Submit</button>
+				</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function() {
+	  $('#id_user').select2({
+		ajax: {
+		  url: "{% url 'get_users' %}",
+		  dataType: 'json',
+		  processResults: function(data) {
+			return {
+			  results: $.map(data, function(item) {
+				return {id: item.id, text: item.first_name +" "+item.last_name}
+			  })
+			}
+		  }
+		}
+	  });
+  });
+  </script>
+{% endblock %}

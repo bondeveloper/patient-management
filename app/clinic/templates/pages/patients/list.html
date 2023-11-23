@@ -1,0 +1,58 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+		<h1 class="display-4">All Patients</h1>
+		{% if not object %}<p class="lead">Patients can be create CRUD and searched.</p>{% endif %}
+	</div>
+  <div class="row gx-5" style="margin-bottom: 50px;">
+    <div class="col-4">
+      <form class="row g-3">
+        <div class="col-auto">
+          <input type="text" class="form-control" id="q" name="q" placeholder="name, dob, email, phone, gender" value="{{filter}}">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-dark mb-3">search</button>
+          <button class="btn btn-outline-dark mb-3" id="clear">clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col">
+    <a class="btn btn-dark btn-sm" href="{% url 'create_patient' %}" style="margin-bottom:50px;">add</a>
+  </div>
+  <div class="row gx-5">
+    <table class="datatable table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Full Name</th>
+          <th scope="col">Date of birth</th>
+          <th scope="col">Email</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Gender</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for patient in object_list %}
+        <tr>
+          <td>{{ patient.first_name }} {{ patient.last_name }}</td>
+          <td>{{ patient.date_of_birth|date:"Y-m-d" }}</td>
+          <td>{{ patient.email }}</td>
+          <td>{{ patient.phone }}</td>
+          <td>{{ patient.gender }}</td>
+          <td>
+            <a class="btn btn-outline-dark btn-sm" href="{% url 'view_patient' patient.id %}">medicial history</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'edit_patient' patient.id %}">edit</a>
+            <a class="btn btn-outline-danger btn-sm" href="{% url 'delete_patient' patient.id %}" onclick="return confirm('you sure?')">delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+
+</script>
+{% endblock %}

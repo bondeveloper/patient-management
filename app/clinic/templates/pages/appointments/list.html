@@ -1,0 +1,168 @@
+{% extends "components/base.html" %}
+{% block content %}
+<div class="container">
+  <div class="row gx-5" style="margin-bottom: 50px;">
+    <div class="col-4">
+      <form class="row g-3">
+        <div class="col-auto">
+          <input type="date" class="form-control" name="q" placeholder="Date" value="{{filter_date}}">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-outline-dark mb-3">search</button>
+          <button class="btn btn-outline-dark mb-3" id="clear">clear</button>
+        </div>
+      </form>
+    </div>
+    <div class="col-4">
+      <button type="button" class="btn btn-dark position-relative">
+        Appointments
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          {{ appointments|length }}
+          <span class="visually-hidden">Appointments</span> {{count}}
+        </span>
+      </button>
+    </div>
+  </div>
+  <div class="col">
+    <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#createAppointmentModal" style="margin-bottom: 50px;">
+      add
+    </button>
+  </div>
+  <div class="row gx-5">
+    <div class="col">
+      <table class="datatable table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Time</th>
+            <th scope="col">Name</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Email</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for appointment in object_list %}
+          <tr>
+            <td>{{ appointment.date|date:"Y-m-d" }}</td>
+            <td>{{ appointment.time|time:"H:i" }}</td>
+            <td>{{ appointment.patient }}</td>
+            <td>{{ appointment.patient.phone }}</td>
+            <td>{{ appointment.patient.email }}</td>
+            <td>
+              <a class="btn btn-outline-dark btn-sm" href="{% url 'view_appointment' appointment.id %}">view</a>
+              <!-- <a class="btn btn-outline-danger btn-sm" id="delete-appointment" data-id="{{appointment.id}}" onclick="deleteAp()">delete</a> -->
+              <a class="btn btn-outline-danger btn-sm" href="{% url 'delete_appointment' appointment.id %}" onclick="return confirm('you sure?')">delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" role="dialog" id="createAppointmentModal"  aria-labelledby="createAppointmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createAppointmentModalLabel">{{patient}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="create-appointment" method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="id_patient" class="col-form-label">Patient</label>
+            <select class="form-select" id="id_patient" name="id_patient">
+              <option value="" disabled selected>-</option>
+              {% for key, value in types %}
+              <option value="{{ key }}">{{ value}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="id_doctor" class="col-form-label">Doctor</label>
+            <select class="form-select" id="id_doctor" name="id_doctor">
+              <option value="" disabled selected>-</option>
+              {% for key, value in types %}
+              <option value="{{ key }}">{{ value}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="date" class="col-form-label">Date</label>
+            <input type="date" class="form-control" id="date" name="date">
+          </div>
+          <div class="mb-3">
+            <label for="time" class="col-form-label">Time</label>
+            <input type="time" class="form-control" id="time" name="time">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="save-appointment">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.getElementById('createAppointmentModal').addEventListener('shown.bs.modal', function (event) {
+      $('#id_patient').select2({
+        dropdownParent: $('#createAppointmentModal'),
+        ajax: {
+          url: "{% url 'get_patients' %}",
+          dataType: 'json',
+          processResults: function(data) {
+            return {
+              results: $.map(data, function(item) {
+                return {id: item.id, text: item.first_name +" "+item.last_name}
+              })
+            }
+          }
+        }
+      });
+      $('#id_doctor').select2({
+        dropdownParent: $('#createAppointmentModal'),
+        ajax: {
+          url: "{% url 'get_doctors' %}",
+          dataType: 'json',
+          processResults: function(data) {
+            return {
+              results: $.map(data, function(item) {
+                return {id: item.id, text: item.first_name +" "+item.last_name}
+              })
+            }
+          }
+        }
+      });
+    });
+
+    document.getElementById('save-appointment').onclick = () => {
+      const data =  Object.fromEntries(new FormData(document.getElementById('create-appointment')))
+      postData("{% url 'create_appointment' %}", data).then((data) => {
+        location.reload();
+      });
+    };
+
+    function deleteAp(e) {
+      console.log(123);
+      const id = e.target.dataset.id;
+      const url = "{% url 'delete_appointment' 12345 %}".replace(/12345/, id.toString());
+      console.log(url);  
+    }
+
+    // document.getElementById('delete-appointment').onclick = (e) => {
+    //   e.preventDefault
+    //   console.log(123);
+    //   const id = e.target.dataset.id;
+    //   const url = "{% url 'delete_appointment' 12345 %}".replace(/12345/, id.toString());
+    //   console.log(url);  
+    //   // getData(url).then((response) => {
+    //   //   // location.reload();
+    //   // });
+    // };
+   
+</script>
+{% endblock %}
