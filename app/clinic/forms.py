@@ -1,17 +1,6 @@
 from django import forms
 from .models import Appointment, Patient, Doctor
 
-# class AppointmentCreationForm(forms.ModelForm):
-
-#   class Meta:
-#     model = Appointment
-#     fields = ["date", "time", "patient"]
-
-  
-#   def __init__(self, *args, **kwaargs):
-#     super().__init__(*args, **kwaargs)
-#     self.fields['patient'].queryset = Patient.objects.none()
-
 
 class BaseDoctorModelForm(forms.ModelForm):
 
