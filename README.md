@@ -20,7 +20,7 @@ access the application on the browser on http://127.0.0.1:8000/
 
 
 #### Step 2
-there is a command that can create 7 users, 1 being super user, 1 being staff user and the rest are normal users that you can use to create doctors later when you log into the system.
+there are two commands that I incded to add users and patients for you to save time. See below table for auth users
 
 this is a dummy system so we can create dummy users to fast track the process
 
