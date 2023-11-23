@@ -1,4 +1,3 @@
-from typing import Any
 from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib.auth.models import Group
@@ -75,11 +74,11 @@ class ListDoctorView(UserAccessMixin, ListView):
         object_list = self.model.objects.all()
         if q:
             object_list = object_list.filter(
-              Q(department__icontains=q)
-              | Q(user__first_name__icontains=q)
-              | Q(user__last_name__icontains=q)
-              | Q(user__email__icontains=q)
-              | Q(phone__icontains=q)
+                Q(department__icontains=q)
+                | Q(user__first_name__icontains=q)
+                | Q(user__last_name__icontains=q)
+                | Q(user__email__icontains=q)
+                | Q(phone__icontains=q)
             )
         return object_list
 
@@ -89,36 +88,38 @@ def get_users(request):
     users = get_user_model().objects.all()
     if q:
         users = users.filter(
-          Q(first_name__icontains=q) |
-          Q(last_name__icontains=q) |
-          Q(email__icontains=q)
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q) |
+            Q(email__icontains=q)
         )
     users_response = list(users.values())
     return JsonResponse(users_response, safe=False)
+
 
 def get_doctors(request):
     q = request.GET.get('q', False)
     object_list = Doctor.objects.all()
     if q:
         object_list = object_list.filter(
-          Q(phone__icontains=q) |
-          Q(user__first_name__icontains=q) |
-          Q(user__last_name__icontains=q) |
-          Q(user__email__icontains=q)
+            Q(phone__icontains=q) |
+            Q(user__first_name__icontains=q) |
+            Q(user__last_name__icontains=q) |
+            Q(user__email__icontains=q)
         )
 
     data = [obj.get_doctor_user_data() for obj in object_list]
     return JsonResponse(data, safe=False)
+
 
 @login_required
 def delete_doctor(request, id):
     Doctor.objects.get(pk=id).delete()
     return redirect('doctors')
 
+
 class CreatePatientView(UserAccessMixin, CreateView):
 
     permission_required = 'clinic.add_patient'
-
 
     model = Patient
     form_class = CreatePatientModelForm
@@ -151,12 +152,12 @@ class ListPatientView(UserAccessMixin, ListView):
         object_list = self.model.objects.all()
         if q:
             object_list = object_list.filter(
-              Q(first_name__icontains=q)
-              | Q(last_name__icontains=q)
-              | Q(email__icontains=q)
-              | Q(date_of_birth__icontains=q)
-              | Q(phone__icontains=q)
-              | Q(gender__icontains=q)
+                Q(first_name__icontains=q)
+                | Q(last_name__icontains=q)
+                | Q(email__icontains=q)
+                | Q(date_of_birth__icontains=q)
+                | Q(phone__icontains=q)
+                | Q(gender__icontains=q)
             )
         return object_list
 
@@ -165,23 +166,23 @@ class ListPatientView(UserAccessMixin, ListView):
 def view_patient(request, id):
     patient = Patient.objects.get(pk=id)
     allergies = patient.allergies.split(",")
-    appointments = patient.appointment_set.all()
     medications = Medication.objects.filter(appointment__patient=patient)
     return render(request, 'pages/patients/view.html', {
-      "patient": patient,
-      "allergies":allergies,
-      "medications":medications
-      })
+        "patient": patient,
+        "allergies": allergies,
+        "medications": medications
+    })
+
 
 def get_patients(request):
     q = request.GET.get('q', False)
     object_list = Patient.objects.all()
     if q:
         object_list = object_list.filter(
-          Q(first_name__icontains=q)
-          | Q(last_name__icontains=q)
-          | Q(email__icontains=q)
-          | Q(gender__icontains=q)
+            Q(first_name__icontains=q)
+            | Q(last_name__icontains=q)
+            | Q(email__icontains=q)
+            | Q(gender__icontains=q)
         )
 
     patient_response = list(object_list.values())
@@ -192,6 +193,7 @@ def get_patients(request):
 def delete_patient(request, id):
     Patient.objects.get(pk=id).delete()
     return redirect('patients')
+
 
 class ListAppointmentView(UserAccessMixin, ListView):
 
@@ -213,9 +215,10 @@ class ListAppointmentView(UserAccessMixin, ListView):
         object_list = self.model.objects.all()
         if q:
             object_list = object_list.filter(
-              Q(date__icontains=q)
+                Q(date__icontains=q)
             )
         return object_list
+
 
 class UpdateAppointment(UserAccessMixin, UpdateView):
 
@@ -227,7 +230,10 @@ class UpdateAppointment(UserAccessMixin, UpdateView):
     success_url = '/appointments/'
 
     def get_context_data(self, **kwargs):
-        active_medication = Medication.objects.filter(appointment__patient=self.get_object().patient, end__gt=date.today())
+        patient = self.get_object().patient
+        active_medication = Medication.objects.filter(
+            appointment__patient=patient,
+            end__gt=date.today())
         context = {
             'medications': active_medication,
         }
@@ -242,16 +248,17 @@ def create_appointment(request):
         doctor = Doctor.objects.get(id=data.get('id_doctor'))
         patient = Patient.objects.get(pk=data.get('id_patient'))
         appointment = Appointment(
-          doctor=doctor,
-          patient=patient,
-          date=data.get('date'),
-          time=data.get('time'),
+            doctor=doctor,
+            patient=patient,
+            date=data.get('date'),
+            time=data.get('time'),
         )
         appointment.save()
     except Exception as e:
         success = False
         logger.error(e)
-    return JsonResponse({'success':success})
+    return JsonResponse({'success': success})
+
 
 def delete_appointment(request, id):
     Appointment.objects.get(pk=id).delete()
@@ -260,35 +267,39 @@ def delete_appointment(request, id):
 
 def create_medication(request, id):
     try:
-        success=True
+        success = True
         appointment = Appointment.objects.get(pk=id)
         data = json.loads(request.body)
         medication = Medication(
-          appointment=appointment,
-          **data
+            appointment=appointment,
+            **data
         )
         medication.save()
     except Exception as e:
         success = False
-    return JsonResponse({'success':success})
+        logger.error(e)
+    return JsonResponse({'success': success})
+
 
 @login_required
 def index(request):
     return render(request, 'pages/home.html')
 
+
 @require_http_methods(["GET", "POST"])
 def signin(request):
-    if request.method=='POST':
+    if request.method == 'POST':
         user = authenticate(
-          request,
-          email=request.POST.get('email'),
-          password=request.POST.get('password')
+            request,
+            email=request.POST.get('email'),
+            password=request.POST.get('password')
         )
 
         if user is not None:
             login(request, user)
             return redirect(request.GET.get('next', 'index'))
     return render(request, 'pages/signin.html')
+
 
 @login_required
 def signout(request):
